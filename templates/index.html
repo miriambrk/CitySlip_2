@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+  
+</html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Cityslip</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
+    <link rel="stylesheet" type="text/css" href="style.css">
+  </head>
+  <body>
+    <div class = "container-fluid">
+      <nav class="navbar fixed-top navbar-expand-lg navbar-dark" style="background-color: #219B9D;">
+          <a class="navbar-brand" href="https://nblase22.github.io/">CitySlip</a>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarNavDropdown">
+            <ul class="navbar-nav ml-auto">
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  Score Factors
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                  <a class="dropdown-item" href="">Population</a>
+                  <a class="dropdown-item" href="">Age Demographics</a>
+                  <a class="dropdown-item" href="">Points of Interest</a>
+                  <a class="dropdown-item" href="">Walkability</a>
+                  <a class="dropdown-item" href="">Weather</a>
+                  <a class="dropdown-item" href="">Schools</a>
+                  <a class="dropdown-item" href="">Home Value</a>
+                  <a class="dropdown-item" href="">Rent</a>
+                  <a class="dropdown-item" href="">Crime Rate</a>
+                  <a class="dropdown-item" href="">Sales Tax</a>
+                  
+                </div>
+              </li>
+              <li class="nav=item">
+                <a class="nav-link" href="">About</a>
+              </li>
+            </ul>
+          </div>
+        </nav>
+        <div class="row">
+            <div class="col-md-12 jumbotron text-center">
+                <h1>CitySlip</h1>
+                <p>Enter a zip code and start exploring!</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-2">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Score Breakdown</h3>
+                    </div>
+                    <div id="score-metadata" class="panel-body">
+                        <!-- INSERT THE METADATA HERE-->
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-5">
+                <!-- INSERT THE MAP HERE-->
+                <div id="map"></div>
+            </div>
+            <div class="col-md-5">
+                <!-- INSERT THE PIE CHARTS HERE -->
+                <div id="POI-pie"></div>
+                <div id="age-pie"></div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-2">
+                <!-- INSERT THE GAUGE CHART HERE-->
+                <div id="gauge"></div>
+            </div>
+
+            <div class="col-md-5">
+                <!-- HOME CHARTS HERE-->
+                <div id="homes"></div>
+            </div>
+
+            <div class="col-md-5">
+                <!-- Population chart here -->
+                <div id="population"></div>
+            </div>
+        </div>
+    </div>
+  </body>
+</html>
