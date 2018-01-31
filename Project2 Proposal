@@ -3,9 +3,12 @@ Team: Miriam, Kris, Nathan
 
 Description:
 
-This project updates our Project 1 City Slip. For a particular zip code, provide a score (0-100) based on our specific criteria, which include (but not limited to): population growth, number of schools, housing/rent prices, plus interesting facts such as the number of parks and restaurants, average weather and more.
+This project updates our Project 1 City Slip. For a particular zip code, provide a score (0-100) based on our specific
+criteria, which include (but not limited to): population growth, number of schools, housing/rent prices, plus interesting
+facts such as the number of parks and restaurants, average weather and more.
 
-All the graphs will be recreated using D3 and related libraries, including Leaflet. The graphs will be interactive. Results will be stored in a sqlite database. Some data will be plotted on a US map.
+All the graphs will be recreated using D3 and related libraries, including Leaflet. The graphs will be interactive.
+Results will be stored in a sqlite database. Some data will be plotted on a US map.
 
 Datasets:
 "	Census API and CSV files - co-est2016-alldata.csv
@@ -17,8 +20,9 @@ Datasets:
 3.	Onboard API - search.onboard-apis.com
 4.	Walkability API - http://api.walkscore.com/
 5.	ZIP code file - free-zipcode-database-Primary.csv
-"	Some of this data will be stored in sqlite databases, along with the metadata and computed score for each zip code
 
-"	primary GitHub repository - https://github.com/kking7714/CitySlip_2.git
+Some of this data will be stored in sqlite databases, along with the metadata and computed score for each zip code
+
+primary GitHub repository - https://github.com/kking7714/CitySlip_2.git
 
 Mockup of website and graphs are in the repository.
