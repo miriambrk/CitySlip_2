@@ -27,7 +27,7 @@ default_zip = 22180
 
 #1) read all the static files and store in JSON structures
 # zip code file, 3 real estate files, census
-all_homes_json = get_real_estate_data(default_zip, Home_sales, Rentals)
+#all_homes_json = get_real_estate_data(default_zip, Home_sales, Rentals)
 
 #2 call everything for the default zip codes
 # all API calls
@@ -53,8 +53,8 @@ def zips():
 @app.route("/REdata/<zip>")
 def redata(zip):
     print("REdata/zip: "+ str(zip))
-    all_homes_json = get_real_estate_data(zip)
-    return(jsonify(all_homes_json))
+    #all_homes_json = get_real_estate_data(default_zip, Home_sales, Rentals)
+    #return(jsonify(all_homes_json))
 
 
 
@@ -62,8 +62,8 @@ def redata(zip):
 @app.route("/POIdata/<lat>/<lng>")
 def poidata(zip):
     print("POIdata/lat: "+ str(lat))
-    poi_json = barfinder(lat,lng)
-    return(jsonify(poi_json))
+    #poi_json = barfinder(lat,lng)
+    #return(jsonify(poi_json))
 
 
 
