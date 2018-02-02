@@ -20,7 +20,7 @@ def barfinder(lat, lng):
     target_types = ["liquor_store", "gym", "park", "shopping_mall", "grocery_or_supermarket", "movie_theater"]
 
     #create a blank dictionary to store results
-    results = {}
+    poi_results = {}
 
     # loop through each target type and gather the number of each nearby
     for target in target_types:
@@ -49,7 +49,7 @@ def barfinder(lat, lng):
 
             # use a series of if statments to check if we returned results. Run a second time if no results showed up as a check
             if numbers > 0:
-                results[target.replace("_", " ").title()] = numbers
+                poi_results[target.replace("_", " ").title()] = numbers
                 x = False
             elif count == 1:
                 x = False
@@ -57,27 +57,4 @@ def barfinder(lat, lng):
                 count += 1
 
     # return the results
-    return results
-
-#---------------------------------------------------------------#
-# pie plot of all of the points of interest as percentage of points of interest
-def pie_plot(rst, target_zip):
-    # create a dataframe
-    pie_df = pd.DataFrame.from_dict(rst, orient = 'index')
-
-    # get the sum of points of interest
-    tot_results = pie_df.sum()
-
-    # turn the data frame into percentages
-    pie_df = (pie_df/tot_results)*100
-
-    # make the graph labels
-    labels = pie_df.index
-
-    fig = plt.figure(figsize = [10,10])
-    plt.pie(pie_df, shadow=True, startangle=140, labels = labels, labeldistance=1.028, autopct="%1.1f%%", pctdistance = .65, textprops = {"fontsize": 12})
-
-    plt.axis("equal")
-    plt.title("Pct of Points of Interest w/in 5 Miles of %s" % target_zip)
-    plt.savefig("Points_of_Interest_PieChart.png", bbox_inches='tight')
-    plt.show()
+    return poi_results
