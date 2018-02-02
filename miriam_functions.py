@@ -3,33 +3,76 @@ import requests as req
 import json
 import zipcodes
 import pandas as pd
-import matplotlib.pyplot as plt
+
 import numpy as np
 import http.client
 from datetime import datetime
 import time as time
 import csv
+# Python SQL toolkit and Object Relational Mapper
+import sqlalchemy
+from sqlalchemy.ext.automap import automap_base
+from sqlalchemy.orm import Session
+from sqlalchemy import create_engine, func
+
+#PROJ2: Get the home sales and rentals from the sqlite database
+def get_real_estate_data(zip_code, Home_sales, Rentals,session):
 
 
+    results = session.query( Home_sales.s2014_03, Home_sales.s2014_06, Home_sales.s2014_09, Home_sales.s2014_12,\
+         Home_sales.s2015_03, Home_sales.s2015_06, Home_sales.s2015_09, Home_sales.s2015_12, \
+         Home_sales.s2016_03, Home_sales.s2016_06, Home_sales.s2016_09, Home_sales.s2016_12, \
+         Home_sales.s2017_03, Home_sales.s2017_06, Home_sales.s2017_09,Home_sales.s2017_12).filter(Home_sales.zip_code == zip_code).all()
+    all_homes = pd.DataFrame(results, columns=['2014_03', '2014_06', '2014_09','2014_12', '2015_03','2015_06', '2015_09','2015_12',\
+        '2016_03','2016_06', '2016_09','2016_12','2017_03','2017_06', '2017_09','2017_12'])
+
+    home_values = all_homes.values.tolist()
+    periods = all_homes.columns.tolist()
+
+    results = session.query( Rentals.r2014_03, Rentals.r2014_06, Rentals.r2014_09, Rentals.r2014_12,\
+         Rentals.r2015_03, Rentals.r2015_06, Rentals.r2015_09, Rentals.r2015_12, \
+         Rentals.r2016_03, Rentals.r2016_06, Rentals.r2016_09, Rentals.r2016_12, \
+         Rentals.r2017_03, Rentals.r2017_06, Rentals.r2017_09,Rentals.r2017_12).filter(Rentals.zip_code == zip_code).all()
+    all_rentals = pd.DataFrame(results, columns=['2014_03', '2014_06', '2014_09','2014_12', '2015_03','2015_06', '2015_09','2015_12',\
+        '2016_03','2016_06', '2016_09','2016_12','2017_03','2017_06', '2017_09','2017_12'])
+    rentals = all_rentals.values.tolist()
+
+    REdata = []
+    for i in range(len(periods)):
+        row = {}
+        row["period"] = periods[i]
+        print(home_values[0][i])
+        row["home_value"] = home_values[0][i]
+        row["rental"] = rentals[0][i]
+        REdata.append(row)
+
+    print(REdata)
+    return (REdata)
 
 #---------------------------------------------------------------#
 
-#get the min and max real estate info to use for comparison purposes later
-#for now just return the median home value and median rental price
-def get_real_estate_extremes():
+#PROJ2: get the min and max real estate info to use for comparison purposes later
+# return the median home value and median rental price
+def get_real_estate_extremes(Home_sales, Rentals,session):
     all_homes = pd.read_csv("Resources/Zip_Zhvi_AllHomes.csv")
     all_rental_homes = pd.read_csv("Resources/Zip_Zri_AllHomes.csv")
 
+    results = session.query(Home_sales.s2017_12).all()
+    all_homes = pd.DataFrame(results, columns=['2017_12'])
+
+    results = session.query(Rentals.r2017_12).all()
+    all_rentals = pd.DataFrame(results, columns=['2017_12'])
+
     #get min and max home values
-    min_home_value = all_homes['2017-09'].min()
-    max_home_value = all_homes['2017-09'].max()
-    median_home_value = all_homes['2017-09'].median()
-    min_rental_price = all_rental_homes['2017-09'].min()
-    max_rental_price = all_rental_homes['2017-09'].max()
-    median_rental_price = all_rental_homes['2017-09'].median()
+    min_home_value = all_homes['2017-12'].min()
+    max_home_value = all_homes['2017-12'].max()
+    median_home_value = all_homes['2017-12'].median()
+    min_rental_price = all_rental_homes['2017-12'].min()
+    max_rental_price = all_rental_homes['2017-12'].max()
+    median_rental_price = all_rental_homes['2017-12'].median()
 
     return median_home_value, median_rental_price
-#get_real_estate_extremes()
+
 
 #---------------------------------------------------------------#
 # Find the nearest zipcode to a zipcode missing data
