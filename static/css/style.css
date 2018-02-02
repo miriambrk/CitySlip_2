@@ -6,7 +6,7 @@
 h2 {
     color: #219B9D;
     font-size: 25px;
-    text-align: center; 
+    text-align: center;
 }
 
 p{
@@ -67,4 +67,85 @@ tr:nth-of-type(odd) {
     align-content: center;
     border-radius: 25px;
     border: 2px solid #219B9D;
+}
+
+.line {
+  fill: none;
+  stroke-width: 2px;
+}
+.green {
+  stroke: green;
+}
+.blue {
+  stroke: blue;
+}
+
+.chart::before {
+  position: absolute;
+  top: 50px;
+  left: 300px;
+  z-index: -1;
+  display: block;
+  width: 400px;
+  height: 300px;
+  content: " ";
+  background-repeat: no-repeat;
+  background-position: 50% 0;
+  background-size: cover;
+  opacity: 0.3;
+}
+
+.tooltip {
+  position: absolute;
+  width: 135px;
+  height: 30px;
+  padding: 2px;
+  padding-top: 8px;
+  font: 12px sans-serif;
+  color: white;
+  text-align: center;
+  background: #551aaf;
+  border: 0;
+  border-radius: 10px;
+}
+
+.axis-text {
+  font-family: sans-serif;
+  font-weight: bold;
+  fill: #551aaf;
+  text-anchor: middle;
+}
+
+
+.x-unselected {
+  font-weight: lighter;
+}
+
+.x-selected {
+  font-weight: bold;
+}
+
+.active {
+  font-weight: bold;
+  fill: #551aaf;
+  transition: fill 0.3s ease-out;
+  text-anchor: middle;
+}
+
+.inactive {
+  font-weight: lighter;
+  fill: #551aaf;
+  transition: fill 0.3s ease-out;
+  text-anchor: middle;
+}
+
+.inactive:hover {
+  fill: #e75480;
+  cursor: pointer;
+}
+
+.analysis {
+  font-family: sans-serif;
+  font: 12px;
+  border: 30px;
 }
