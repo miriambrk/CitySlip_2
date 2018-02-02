@@ -223,7 +223,7 @@ var gaugeMarkerSize = 20;
                     color: 'black'
                   }
                 }],
-              title: 'Zip Slip Score',
+              title: 'Zip Slip Score for '+zip,
               height: 500,
               width: 500,
               xaxis: {zeroline:false, showticklabels:false,
@@ -271,18 +271,21 @@ var gaugeMarkerSize = 20;
   //get all the initial data, using the default sample id
   function getData() {
 
+    //*Temp
+    var zip = "22180";
+
       //get real estate data
-      // Plotly.d3.json("/REdata/zip", function(error, RE_data){
-      //     if (error) return console.warn(error);
-      //     build_real_estate_graph(RE_data);
-      // })
+      Plotly.d3.json("/REdata/zip", function(error, REdata){
+          if (error) return console.warn(error);
+          build_real_estate_graph(REdata);
+      })
 
 
 
-      //*Temp
-      var zip = "22180";
 
-      //build_real_estate_graph(zip);
+
+
+
 
 
       //get the metadata and build the display of the metadata and score
