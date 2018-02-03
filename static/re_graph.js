@@ -1,5 +1,4 @@
 function build_real_estate_graph(REdata) {
-  //console.log(REdata);
 
   var svgWidth = 600;
   var svgHeight = 500;
@@ -56,7 +55,6 @@ function build_real_estate_graph(REdata) {
 
   // Call findMinAndMax() with defaults
   findMinAndMax(currentAxisLabelY);
-  console.log("ymin: "+yMin);
 
   var xTimeScale = d3.scaleTime()
     .range([0, width]);
@@ -84,15 +82,12 @@ function build_real_estate_graph(REdata) {
   //add the tool tip
   var toolTip = d3.tip()
     .attr("class", "tooltip")
-    //.offset([80, -60])
     .offset([0,0])
 
     .html(function(data) {
-      console.log("currentY: " + currentAxisLabelY);
 
       if (currentAxisLabelY === "home_value") {
         var yString = data.home_value;
-        console.log("yString: "+yString);
       }
       else {
         var yString = data.rental;
@@ -101,7 +96,6 @@ function build_real_estate_graph(REdata) {
       var formatPeriod = d3.timeFormat("%Y-%m");
       xString = formatPeriod(data.period);
 
-      console.log("xString: " + xString + " YString: " + yString);
       return (xString + ": $" + yString);
     });
 
@@ -197,31 +191,25 @@ function build_real_estate_graph(REdata) {
     d3.selectAll(".axis-text").on("click", function() {
     // Assign a variable to current axis
       var clickedSelection = d3.select(this);
-      console.log("clickedSel: " + clickedSelection);
 
       // "true" or "false" based on whether the axis is currently selected
       var isClickedSelectionInactive = clickedSelection.classed("inactive");
-      // console.log("this axis is inactive", isClickedSelectionInactive)
-      // Grab the data-attribute of the axis and assign it to a variable
-      // e.g. if data-axis-name is "poverty," var clickedAxis = "poverty"
-      var clickedAxis = clickedSelection.attr("data-axis-name");
-      console.log("current y axis: ", clickedAxis);
 
+      // Grab the data-attribute of the axis and assign it to a variable
+      var clickedAxis = clickedSelection.attr("data-axis-name");
+      
       // The onclick events below take place only if the x-axis is inactive
       // Clicking on an already active axis will therefore do nothing
       if (isClickedSelectionInactive) {
         // Assign the clicked axis to the variable currentAxisLabelX
         currentAxisLabelY = clickedAxis;
-        console.log("currentAxisLabelY: " + currentAxisLabelY);
 
         //find min and max domain values
         findMinAndMax(currentAxisLabelY);
-
         // Set the domain for the y-axis
         yLinearScale.domain([yMin, yMax]);
 
         // Create a transition effect for the y-axis
-
         svg
           .select(".y-axis")
           .transition()
