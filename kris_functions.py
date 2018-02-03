@@ -152,11 +152,46 @@ def get_market_health_and_extremes(zip, Market_Health, Home_sales, Rentals, sess
     return market_dict
 ### END GET GET MARKET HEALTH
 ###------------------------------------------###
+def get_walk(zip, zip_latlon,session):
+    sel = [zip_latlon.zip_code, zip_latlon.lat, zip_latlon.lon]
+    results = session.query(*sel).\
+        filter(zip_latlon.zip_code ==zip)
+    zip_data = {}
+    for result in results:
+        zip_data['ZIP_CODE'] = result[0]
+        zip_data['LAT'] = result[1]
+        zip_data['LON'] = result[2]
 
+    lat = zip_data['LAT']
+    lng = zip_data['LON']
 
+    walk_api_key = "ca8240c847695f334874949c406f04aa"
+    walk_url = "http://api.walkscore.com/score?format=json&"
+    # Build query URL
+    query_url = walk_url  + "&lat=" + str(lat) + "&lon=" + str(lng) + "&transit=1&bike=1" + "&wsapikey=" + walk_api_key
+    walk_response = req.get(query_url).json()
 
+    # Get the neighborhood data from the response
+    walk_score = walk_response['walkscore']
+    walk_description =walk_response['description']
+    try:
+        bike_score = walk_response['bike']['score']
+        bike_description = walk_response['bike']['description']
+    except:
+        bike_score = 0
+        bike_description = ""
+    walk_dict = {
+        "walk_score": walk_score,
+        "walk_description": walk_description,
+        "bike_score": bike_score,
+        "bike_description": bike_description
+    }
+    return walk_dict
+###------------------------------------------###
+### START GET WALK DATA
 
-
+### END GET WALK DATA
+###------------------------------------------###
 ###------------------------------------------###
 ### START GET SCHOOLS FUNCTION
 ### CALLS ONBOARD API FOR RADIUS OF 5 MILES TO GATHER SCHOOLS IN THE AREA
@@ -305,12 +340,17 @@ def get_community_data(zip, zip_latlon, Market_Health, Home_sales, Rentals, sess
     community_dict['_70_plus'] = age_by_zip_df[14:18]['Count'].sum()
     school = get_schools(zip, zip_latlon, session)
     market = get_market_health_and_extremes(zip, Market_Health, Home_sales, Rentals, session)
+    walk = get_walk(zip, zip_latlon, session)
     community_dict['private_school'] = school['private_school']
     community_dict['public_school'] = school['public_school']
     community_dict['catholic_school'] = school['catholic_school']
     community_dict['other_school'] = school['other_school']
     community_dict['median_home_value'] = market['median_home_value']
     community_dict['median_rental_price'] = market['median_rental_price']
+    community_dict['walk_score'] = walk['walk_score']
+    community_dict['walk_description'] = walk['walk_description']
+    community_dict['bike_score'] = walk['bike_score']
+    community_dict['bike_description'] = walk['bike_description']
     #Community dict used for FLASK app to jsonify
     return community_dict
 ### END GET COMMUNITY DATA FUNCTION
