@@ -272,21 +272,21 @@ var gaugeMarkerSize = 20;
   function getData() {
 
     //*Temp
-    var zip = "22180";
+    var zip = 22180;
 
       //get real estate data
-      Plotly.d3.json("/REdata/zip", function(error, REdata){
+      Plotly.d3.json("/REdata/"+zip, function(error, REdata){
           if (error) return console.warn(error);
           build_real_estate_graph(REdata);
       })
 
-
-
-
-
-
-
-
+//********* NEW
+      // //get market health and real estate median prices
+      // Plotly.d3.json("/markethealth/zip", function(error, markethealth){
+      //     if (error) return console.warn(error);
+      //     print(markethealth);
+      // })
+//********* NEW
 
       //get the metadata and build the display of the metadata and score
       // Plotly.d3.json("/alldata/"+zip, function(error, zip_data){
