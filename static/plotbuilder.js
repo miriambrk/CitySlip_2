@@ -10,9 +10,9 @@ d3.select("#zip_button")
 // check the zip code to make sure it is valid, place popup for invalid zips
 // return lat/lon/city/county to the other functions when zip code is valid
 function checkzip(code) {
-    Plotly.d3.json("/zip", function(errr, data){
+    Plotly.d3.json("/zip_latlng/" + code, function(errr, data){
         
-    poi_pie(38.88, -77.09)
+    poi_pie(data.LAT, data.LNG)
 })};
 
 // POI pie plot taking lat/lng from checkzip funciton
