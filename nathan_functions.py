@@ -49,7 +49,7 @@ def barfinder(lat, lng):
 
             # use a series of if statments to check if we returned results. Run a second time if no results showed up as a check
             if numbers > 0:
-                poi_results[target.replace("_", " ").title()] = numbers
+                poi_results[target.replace("_", "").title()] = numbers
                 x = False
             elif count == 1:
                 x = False
