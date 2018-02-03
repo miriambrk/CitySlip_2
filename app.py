@@ -9,6 +9,7 @@ from sqlalchemy import create_engine, func
 import kris_functions as kris
 import requests as req
 import json
+from nathan_functions import barfinder
 
 #from zip_functions import bar_finder, cen_block_query, population_df_generator, get_real_estate_extremes
 #from zip_functions import find_near_zips, get_home_data, age_demographics_zip, get_details, get_zip_factors, get_school_data, compute_score
