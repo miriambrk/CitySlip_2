@@ -12,13 +12,13 @@ d3.select("#zip_button")
 function checkzip(code) {
     Plotly.d3.json("/zip", function(errr, data){
         
-    poi_pie(38.88, 77.09)
+    poi_pie(38.88, -77.09)
 })};
 
 // POI pie plot taking lat/lng from checkzip funciton
 function poi_pie(lat, lng){
     // call the route with the POI data
-    Plotly.d3.json("/POIdata",function(errr, data){
+    Plotly.d3.json("/POIdata?lat=" + lat + "&lng=" + lng ,function(errr, data){
         // create the total number of places of interest and the percentages, place in pie values list
         console.log(data)
         var poi_total = data.Liquorstore + data.Gym + data.Park + data.Shoppingmall + data.Groceryorsupermarket + data.Movietheater;
