@@ -139,28 +139,13 @@ def census_data(lat, lng):
         pop_data['POPULATION_2016'] = row[8]
     return(jsonify(pop_data))
 
-#Query onboard's community API for age demographics / avg Jan and Jun temps / crime rate / sales tax
+#Query onboard's community API for age demographics / avg Jan and Jun temps / crime rate / sales tax / schools
 #EXAMPLE URL:  /community/20764
 @app.route("/community/<zip>")
 def community(zip):
-    return(jsonify(kris.get_community_data(zip)))
+    # community_all = kris.get_community_data(zip, zip_latlon, session)
+    return(jsonify(kris.get_community_data(zip, zip_latlon, session)))
 
-
-#Query onboard for schools within 5 miles of zipcode center point
-#EXAMPLE URL:  /schools/33040
-@app.route("/schools/<zip>")
-def schools(zip):
-    sel = [zip_latlon.zip_code, zip_latlon.lat, zip_latlon.lon]
-    results = session.query(*sel).\
-        filter(zip_latlon.zip_code ==zip)
-    zip_data = {}
-    for result in results:
-        zip_data['ZIP_CODE'] = result[0]
-        zip_data['LAT'] = result[1]
-        zip_data['LON'] = result[2]
-    lat = zip_data['LAT']
-    lng = zip_data['LON']
-    return jsonify(kris.get_schools(lat,lng))
 
 
 
