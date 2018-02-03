@@ -57,7 +57,9 @@ function poi_pie(lat, lng){
         // create the layout of the chart
         var layout = {
             height: 400,
-            width: 500
+            width: 500,
+            paper_bgcolor:'rgba(0,0,0,0)',
+            plot_bgcolor:'rgba(0,0,0,0)'
         };
         
         // plot the chart
