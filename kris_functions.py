@@ -123,6 +123,39 @@ def population_df_generator(pop_est):
     return census_pop_master_df
 
 
+###------------------------------------------###
+### START GET MARKET HEALTH
+def get_market_health_and_extremes(zip, Market_Health, Home_sales, Rentals, session):
+    market_dict = {}
+    results = session.query( Market_Health.market_health_index).filter(Market_Health.zip_code == zip).all()
+    try:
+        for mhi in results:
+            market_health_index = mhi.market_health_index
+        market_dict['market_health_index'] = market_health_index
+    except:
+        #no market health data for input zip code; store 0 as a N/A value
+        market_dict["market_health_index"] = 0
+    print("Market Health: %s" % market_dict['market_health_index'])
+
+    results = session.query(Home_sales.s2017_12).all()
+    all_homes = pd.DataFrame(results, columns=['2017_12'])
+
+    results = session.query(Rentals.r2017_12).all()
+    all_rentals = pd.DataFrame(results, columns=['2017_12'])
+
+    #get median home values and rental prices
+    median_home_value = all_homes['2017_12'].median()
+    median_rental_price = all_rentals['2017_12'].median()
+
+    market_dict["median_home_value"] = median_home_value
+    market_dict["median_rental_price"] = median_rental_price
+    return market_dict
+### END GET GET MARKET HEALTH
+###------------------------------------------###
+
+
+
+
 
 ###------------------------------------------###
 ### START GET SCHOOLS FUNCTION
@@ -223,7 +256,7 @@ def get_schools(zip, zip_latlon, session):
 ###------------------------------------------###
 ### START GET COMMUNITY DATA FUNCTION
 ### CALLS ONBOARD API FOR: ge demographics / avg Jan and Jun temps / crime rate / sales tax
-def get_community_data(zip, zip_latlon, session):
+def get_community_data(zip, zip_latlon, Market_Health, Home_sales, Rentals, session):
 
    #Onboard API Key
     onboard_api_key = "e01de281b458feb963cf591ed6355a8d"
@@ -271,11 +304,13 @@ def get_community_data(zip, zip_latlon, session):
     community_dict['_60_69'] = age_by_zip_df[12:14]['Count'].sum()
     community_dict['_70_plus'] = age_by_zip_df[14:18]['Count'].sum()
     school = get_schools(zip, zip_latlon, session)
-    print (school)
+    market = get_market_health_and_extremes(zip, Market_Health, Home_sales, Rentals, session)
     community_dict['private_school'] = school['private_school']
     community_dict['public_school'] = school['public_school']
     community_dict['catholic_school'] = school['catholic_school']
     community_dict['other_school'] = school['other_school']
+    community_dict['median_home_value'] = market['median_home_value']
+    community_dict['median_rental_price'] = market['median_rental_price']
     #Community dict used for FLASK app to jsonify
     return community_dict
 ### END GET COMMUNITY DATA FUNCTION

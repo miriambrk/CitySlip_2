@@ -29,6 +29,7 @@ session = Session(engine)
 Home_sales = Base.classes.home_sales
 Rentals = Base.classes.rentals
 zip_latlon = Base.classes.zip_to_lat
+Market_Health = Base.classes.market_health
 census = Base.classes.census_pop
 
 default_zip = 22180
@@ -68,11 +69,11 @@ def redata(zip):
 
 ###### NEW #################
 #return market health index
-@app.route("/markethealth/<zip>")
-def markethealth(zip):
+# @app.route("/markethealth/<zip>")
+# def markethealth(zip):
 
-    market_dict = get_market_health_and_extremes(zip, Market_Health, Home_sales, Rentals, session)
-    return(jsonify(market_dict))
+#     market_dict = get_market_health_and_extremes(zip, Market_Health, Home_sales, Rentals, session)
+#     return(jsonify(market_dict))
 ###### NEW #################
 
 
@@ -144,7 +145,7 @@ def census_data(lat, lng):
 @app.route("/community/<zip>")
 def community(zip):
     # community_all = kris.get_community_data(zip, zip_latlon, session)
-    return(jsonify(kris.get_community_data(zip, zip_latlon, session)))
+    return(jsonify(kris.get_community_data(zip, zip_latlon, Market_Health, Home_sales, Rentals, session)))
 
 
 
