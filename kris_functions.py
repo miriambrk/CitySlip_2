@@ -142,7 +142,7 @@ def get_community_data(target_zip):
     conn = http.client.HTTPSConnection("search.onboard-apis.com")
     headers = {
         'accept': "application/json",
-        'apikey': "e01de281b458feb963cf591ed6355a8d",
+        'apikey': onboard_api_key,
         }
 
     community_url = "/communityapi/v2.0.0/Area/Full/?"
