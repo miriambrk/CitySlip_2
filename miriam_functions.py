@@ -27,7 +27,9 @@ def get_real_estate_data(zip_code, Home_sales, Rentals,session):
         '2016_03','2016_06', '2016_09','2016_12','2017_03','2017_06', '2017_09','2017_12'])
 
     home_values = all_homes.values.tolist()
+    print(home_values)
     periods = all_homes.columns.tolist()
+    print(periods)
 
     results = session.query( Rentals.r2014_03, Rentals.r2014_06, Rentals.r2014_09, Rentals.r2014_12,\
          Rentals.r2015_03, Rentals.r2015_06, Rentals.r2015_09, Rentals.r2015_12, \
@@ -49,13 +51,20 @@ def get_real_estate_data(zip_code, Home_sales, Rentals,session):
     print(REdata)
     return (REdata)
 
-#---------------------------------------------------------------#
-
-#PROJ2: get the min and max real estate info to use for comparison purposes later
-# return the median home value and median rental price
-def get_real_estate_extremes(Home_sales, Rentals,session):
-    all_homes = pd.read_csv("Resources/Zip_Zhvi_AllHomes.csv")
-    all_rental_homes = pd.read_csv("Resources/Zip_Zri_AllHomes.csv")
+#PROJ2: get all market health index from sqlite; also get median home sales and rental price
+# This index indicates the current health of a given region’s housing market relative to other markets nationwide.
+# It is calculated on a scale of 0 to 10, with 0 = the least healthy markets and 10 = the healthiest markets.
+def get_market_health_and_extremes(zip_code, Market_Health, Home_sales, Rentals, session):
+    market_dict = {}
+    results = session.query( Market_Health.market_health_index).filter(Market_Health.zip_code == zip_code).all()
+    try:
+        for mhi in results:
+            market_health_index = mhi.market_health_index
+        market_dict['market_health_index'] = market_health_index
+    except:
+        #no market health data for input zip code; store 0 as a N/A value
+        market_dict["market_health_index"] = 0
+    print("Market Health: %s" % market_dict['market_health_index'])
 
     results = session.query(Home_sales.s2017_12).all()
     all_homes = pd.DataFrame(results, columns=['2017_12'])
@@ -63,15 +72,27 @@ def get_real_estate_extremes(Home_sales, Rentals,session):
     results = session.query(Rentals.r2017_12).all()
     all_rentals = pd.DataFrame(results, columns=['2017_12'])
 
-    #get min and max home values
-    min_home_value = all_homes['2017-12'].min()
-    max_home_value = all_homes['2017-12'].max()
-    median_home_value = all_homes['2017-12'].median()
-    min_rental_price = all_rental_homes['2017-12'].min()
-    max_rental_price = all_rental_homes['2017-12'].max()
-    median_rental_price = all_rental_homes['2017-12'].median()
+    #get median home values and rental prices
+    median_home_value = all_homes['2017_12'].median()
+    median_rental_price = all_rentals['2017_12'].median()
 
-    return median_home_value, median_rental_price
+    market_dict["median_home_value"] = median_home_value
+    market_dict["median_rental_price"] = median_rental_price
+    return market_dict
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 #---------------------------------------------------------------#
@@ -196,39 +217,6 @@ def get_home_data(zipc, city, state):
     rent = df.iloc[-1]['monthly_rent']
 
     return df, periods, home_value, rent, found
-
-#---------------------------------------------------------------#
-
-# Function to plot Zillow home values and monthly rental prices for 2014-2017 quarters
-# Function requires a DF with the Zillow info and the zip code (string)
-def plot_homes(df, zipc, periods, found):
-    #only plot if there is data
-    if (found == 1) | (found == 3):
-        #plot the home values
-        x_ticks = periods
-        x_axis = np.arange(1,16,1)
-        y_axis = df['home_value']
-        plt.xticks(x_axis, x_ticks, rotation='vertical')
-        plt.legend
-        plt.plot(x_axis, y_axis)
-        plt.ylabel("Home Prices ($)")
-        plt.title("%s Home Sales 2014-2017" % zipc)
-        #save the plot
-        plt.savefig("Home_Prices_LineGraph.png", bbox_inches='tight')
-        plt.show()
-
-    if found > 1:
-        #plot the monthly rentals
-        x_ticks = periods
-        x_axis = np.arange(1,16,1)
-        y_axis = df['monthly_rent']
-        plt.xticks(x_axis, x_ticks, rotation='vertical')
-        plt.legend
-        plt.plot(x_axis, y_axis)
-        plt.ylabel("Montly Rents ($)")
-        plt.title("%s Monthly Rents 2014-2017" % zipc)
-        plt.savefig("Rent_Prices_LineGraph.png", bbox_inches='tight')
-        plt.show()
 
 
 #---------------------------------------------------------------#
