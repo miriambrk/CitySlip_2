@@ -76,11 +76,17 @@ def markethealth(zip):
 
 
 #return all POIs for a specific lat/long
-@app.route("/POIdata/<lat>/<lng>")
-def poidata(zip):
-    print("POIdata/lat: "+ str(lat))
-    #poi_json = barfinder(lat,lng)
-    #return(jsonify(poi_json))
+@app.route("/POIdata", methods=['get'])
+def poi():
+    lat = request.args.get("lat", None)
+    lng = request.args.get("lng", None)
+    return poidata(lat,lng)
+def poidata(lat, lng):
+    print(lat)
+    print(lng)
+    poi_json = barfinder(lat,lng)
+    return(jsonify(poi_json))
+
 
 
 # returns the zipcode with associated lattitude and longitude
