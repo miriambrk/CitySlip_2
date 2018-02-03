@@ -14,6 +14,7 @@ function checkzip(code) {
         
     poi_pie(data.LAT, data.LON)
     age_pie(data.ZIP_CODE)
+    getData(data.ZIP_CODE)
 })};
 
 // POI pie plot taking lat/lng from checkzip funciton
@@ -121,3 +122,93 @@ function age_pie(zip){
         Plotly.newPlot('age-pie', piedata, layout);
     
 })};
+
+var originalWidth = document.getElementById('cont1').clientWidth;
+var gaugeMarkerSize = 20;
+var mycolorsgauge = ['rgba(0, 255, 0, .5)',
+'rgba(191, 255, 0, .5)',
+ 'rgba(255, 255, 0, .5)',
+'rgba(255, 128, 0, .5)',
+  'rgba(255, 0, 0, .5)',
+   'rgba(0,0,0,0)'];
+
+function build_gauge_chart(zip) {
+
+
+    //var level = zip_data['score'];
+
+    var level = 85;
+
+    // Trig to calc meter point
+
+      var deg = degrees = ((level*180)/100);
+      var degrees = 180-deg,
+           radius = .5;
+      var radians = degrees * Math.PI / 180;
+      var x = radius * Math.cos(radians);
+      var y = radius * Math.sin(radians);
+
+
+      // Path:
+      var mainPath = 'M -.0 -0.025 L .0 0.025 L ',
+           pathX = String(x),
+           space = ' ',
+           pathY = String(y),
+           pathEnd = ' Z';
+      var path = mainPath.concat(pathX,space,pathY,pathEnd);
+
+      var data = [{ type: 'scatter',
+          x: [0], y:[0],
+          marker: {size: gaugeMarkerSize, color:'black'},
+          showlegend: false,
+          name: 'score',
+          text: level,
+          hoverinfo: 'text'},
+          { values: [40/5, 40/5, 40/5, 40/5, 40/5, 40],
+          rotation: 90,
+          text: ['Great','Good', 'Adequate', 'Poor', 'Unacceptable', ''],
+          textinfo: 'text',
+          textposition:'inside',
+          marker: {colors: mycolorsgauge},
+          labels: ['80-100','60-80', '40-60', '20-40', '0-20', ''],
+          hoverinfo: 'label',
+          hole: .5,
+          type: 'pie',
+          showlegend: false
+      }];
+
+      var layout = {
+        shapes:[{
+            type: 'path',
+            path: path,
+            fillcolor: 'black',
+            line: {
+              color: 'black'
+            }
+          }],
+        paper_bgcolor:'rgba(0,0,0,0)',
+        plot_bgcolor:'rgba(0,0,0,0)',
+        title: 'Zip Slip Score for '+zip,
+        height: 500,
+        width: 500,
+        xaxis: {zeroline:false, showticklabels:false,
+                   showgrid: false, range: [-1, 1]},
+        yaxis: {zeroline:false, showticklabels:false,
+                   showgrid: false, range: [-1, 1]}
+      };
+      Plotly.newPlot('gauge', data, layout);
+  }
+
+  //get all the initial data, using the default sample id
+  function getData(zip) {
+
+
+      //get real estate data
+      Plotly.d3.json("/REdata/"+zip, function(error, REdata){
+          if (error) return console.warn(error);
+          build_real_estate_graph(REdata);
+      })
+
+      build_gauge_chart(zip);
+
+  };
