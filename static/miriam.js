@@ -1,5 +1,138 @@
+// begin running the zipcode on entry of a code by the user
+d3.select("#zip_button")
+        .on("click", function(d,i) {
+            // convert the code to an interger
+            code = parseInt(document.getElementById("zip_code").value)
+            console.log(code)
+            checkzip(code)
+        });
+
+// check the zip code to make sure it is valid, place popup for invalid zips
+// return lat/lon/city/county to the other functions when zip code is valid
+function checkzip(code) {
+    Plotly.d3.json("/zip_latlng/" + code, function(errr, data){
+
+    //poi_pie(data.LAT, data.LON)
+    //age_pie(data.ZIP_CODE)
+    getData(data.ZIP_CODE)
+})};
+
+// POI pie plot taking lat/lng from checkzip funciton
+function poi_pie(lat, lng){
+    // call the route with the POI data
+    Plotly.d3.json("/POIdata?lat=" + lat + "&lng=" + lng ,function(errr, data){
+        // create the total number of places of interest and the percentages, place in pie values list
+        console.log(data)
+        var poi_total = data.Liquorstore + data.Gym + data.Park + data.Shoppingmall + data.Groceryorsupermarket + data.Movietheater;
+        var ls_pct = (data.Liquorstore/poi_total) * 100;
+        var gym_pct = (data.Gym/poi_total) * 100;
+        var park_pct = (data.Park/poi_total) * 100;
+        var sm_pct = (data.Shoppingmall/poi_total) * 100;
+        var gos_pct = (data.Groceryorsupermarket/poi_total) * 100;
+        var mt_pct = (data.Movietheater/poi_total) * 100;
+        var pie_values = [ls_pct, gym_pct, park_pct, sm_pct, gos_pct, mt_pct];
+
+        console.log(pie_values);
+
+        // place the individual totals for hover text
+        var ind_totals = [data.Liquorstore, data.Gym, data.Park, data.Shoppingmall, data.Groceryorsupermarket, data.Movietheater];
+        console.log(ind_totals);
+
+        // create the pie labels
+        var pie_labels = ["Liquor Stores", "Gyms", "Parks", "Shopping Malls", "Grocery Stores", "Movie Theaters"];
+
+        // create the hovertext using ind totals and pie labels
+        var poi_desc = [];
+        for (p=0; p < ind_totals.length; p++){
+            poi_desc.push(pie_labels[p] + ": " + ind_totals[p]);
+        }
+        console.log(poi_desc);
+        // create the data part of the pie chart
+        var piedata = [{
+            values: pie_values,
+            labels: pie_labels,
+            type:"pie",
+            hoverinfo: "text",
+            hovertext: poi_desc
+        }];
+
+        // create the layout of the chart
+        var layout = {
+            height: 400,
+            width: 500,
+            paper_bgcolor:'rgba(0,0,0,0)',
+            plot_bgcolor:'rgba(0,0,0,0)'
+        };
+
+        // plot the chart
+        Plotly.newPlot('POI-pie', piedata, layout);
+
+})};
+
+function age_pie(zip){
+    // call the route with the POI data
+    Plotly.d3.json("/community/" + zip, function(errr, data){
+        // create the total number of places of interest and the percentages, place in pie values list
+        console.log(data)
+        var age_total = data._0_09 + data._10_19 + data._20_29 + data._30_39 + data._40_49 + data._50_59 + data._60_69 + data._70_plus;
+        var _0_09_pct = (data._0_09/age_total) * 100;
+        var _10_19_pct = (data._10_19/age_total) * 100;
+        var _20_29_pct = (data._20_29/age_total) * 100;
+        var _30_39_pct = (data._30_39/age_total) * 100;
+        var _40_49_pct = (data._40_49/age_total) * 100;
+        var _50_59_pct = (data._50_59/age_total) * 100;
+        var _60_69_pct = (data._60_69/age_total) * 100;
+        var _70_plus_pct = (data._70_plus/age_total) * 100;
+
+        var pie_values = [_0_09_pct,_10_19_pct, _20_29_pct, _30_39_pct, _40_49_pct, _50_59_pct, _60_69_pct, _70_plus_pct];
+
+        console.log(pie_values);
+
+        // place the individual totals for hover text
+        var ind_totals = [data._0_09, data._10_19, data._20_29, data._30_39, data._40_49, data._50_59, data._60_69, data._70_plus];
+        console.log(ind_totals);
+
+        // create the pie labels
+        var pie_labels = ["0-9", "10-19", "20-29", "30-39", "40-49", "50-59", "60-69", "70+"];
+
+        // create the hovertext using ind totals and pie labels
+        var age_desc = [];
+        for (a=0; a < ind_totals.length; a++){
+            age_desc.push(pie_labels[a] + ": " + ind_totals[a]);
+        }
+        console.log(age_desc);
+        // create the data part of the pie chart
+        var piedata = [{
+            values: pie_values,
+            labels: pie_labels,
+            type:"pie",
+            hoverinfo: "text",
+            hovertext: age_desc
+        }];
+
+        // create the layout of the chart
+        var layout = {
+            height: 400,
+            width: 500,
+            paper_bgcolor:'rgba(0,0,0,0)',
+            plot_bgcolor:'rgba(0,0,0,0)'
+        };
+
+        // plot the chart
+        Plotly.newPlot('age-pie', piedata, layout);
+
+})};
+
+
+
 var originalWidth = document.getElementById('cont1').clientWidth;
-var gaugeMarkerSize = 20;
+var gaugeMarkerSize = 10;
+var mycolorsgauge = ['rgba(0, 255, 0, .5)',
+                      'rgba(191, 255, 0, .5)',
+                       'rgba(255, 255, 0, .5)',
+                      'rgba(255, 128, 0, .5)',
+                        'rgba(255, 0, 0, .5)',
+                         'rgba(255,255,255,.8)'];
 
 //make responsive/resizable with event listeners for resize; resize the charts proportionally
 //Note: the pie chart is in a column of size 5 (out of 12); gauge is size 4 out of 12
@@ -21,30 +154,6 @@ var gaugeMarkerSize = 20;
 // });
 
 
-
-  //default to the first sample so that data is displayed upon startup
-  var zip = "22180";
-
-
-  var mycolorsgauge = ['rgba(0, 255, 0, .5)',
-                        'rgba(191, 255, 0, .5)',
-                         'rgba(255, 255, 0, .5)',
-                        'rgba(255, 128, 0, .5)',
-                          'rgba(255, 0, 0, .5)',
-                           'rgba(255,255,255,.8)'];
-
-
-
-  //build the dropdown button with the sample IDs
-  // function build_dropdown_button(data_names) {
-  //   //loop through the data_names
-  //   for (i=0; i<data_names.length; i++) {
-  //     var optn = document.createElement("OPTION");
-  //     var element = document.getElementById("selDataset").options.add(optn);
-  //     optn.text = data_names[i];
-  //     optn.value = data_names[i];
-  //   }
-  // }
 
   // //refresh the charts using the data for the newly selected sample
   // function optionChanged(new_sample) {
@@ -84,69 +193,6 @@ var gaugeMarkerSize = 20;
   // }
 
 
-  // //Build the initial pie chart for the input sample
-  // function build_pie_chart(data_sample, sample_number) {
-  //
-  //     //set the top 10 values
-  //     var top_ten_values = [];
-  //     var top_ten_otu_id = [];
-  //     var top_ten_otu_desc = [];
-  //
-  //     //only include if non-zero
-  //     for (i=0; i<10; i++) {
-  //       if (data_sample[0].sample_values[i] > 0 ) {
-  //         top_ten_values.push(data_sample[0].sample_values[i]);
-  //         top_ten_otu_id.push(data_sample[0].otu_id[i]);
-  //         top_ten_otu_desc.push(data_sample[0].otu_desc[i]);
-  //       }
-  //     }
-  //
-  //     //set the layout and the pie data
-  //     var pie_chart_layout = {
-  //         title: "Top 10 Samples for BB_"+ sample_number,
-  //         height: 600,
-  //         width: 600
-  //         };
-  //     var pie_data = [{
-  //         values: top_ten_values,
-  //         labels: top_ten_otu_id,
-  //         type: "pie",
-  //         hovertext: top_ten_otu_desc,
-  //         'marker': {'colors': mycolors},
-  //     }];
-  //
-  //     //plot the pie chart
-  //     Plotly.plot("pie_chart", pie_data, pie_chart_layout);
-  //   }
-
-
-
-    // //Build the initial bubble chart for the input sample
-    // function build_bubble_chart(data_sample, sample_number) {
-    //
-    //       var bubble_chart_layout = {
-    //           title: "All BB_"+ sample_number +" Samples",
-    //           height: 700,
-    //           width: 1200,
-    //           xaxis: { title: "OTU IDs" },
-    //           yaxis: { title: "Sample Values" }
-    //           };
-    //       var bubble_data = [{
-    //           x: data_sample[0].otu_id,
-    //           y: data_sample[0].sample_values,
-    //           mode: "markers",
-    //           marker: {
-    //             size: data_sample[0].sample_values,
-    //             colorscale: mycolorscale,
-    //             color: data_sample[0].otu_id,
-    //           },
-    //           type: "bubble",
-    //           text: data_sample[0].otu_desc,
-    //         }];
-    //
-    //       //plot the bubble chart
-    //       Plotly.plot("bubble_chart", bubble_data, bubble_chart_layout);
-    //   }
 
         // //update the pie chart and the bubble chart after a new data sample has been selected
         // function updatePlotly(new_top_ten_values, new_top_ten_otu_id, new_top_ten_otu_desc,new_data_sample,new_sample_number) {
@@ -157,27 +203,18 @@ var gaugeMarkerSize = 20;
         //     Plotly.restyle(PIE, "labels", [new_top_ten_otu_id]);
         //     Plotly.restyle(PIE, "hovertext", [new_top_ten_otu_desc]);
         //
-        //     //update the Bubble chart
-        //     var BUBBLE = document.getElementById("bubble_chart");
-        //     Plotly.relayout(BUBBLE, "title", "All BB_"+ new_sample_number +" Samples");
-        //     Plotly.restyle(BUBBLE, "x", [new_data_sample[0].otu_id]);
-        //     Plotly.restyle(BUBBLE, "y", [new_data_sample[0].sample_values]);
-        //     Plotly.restyle(BUBBLE, "text", [new_data_sample[0].otu_desc]);
-        //     Plotly.restyle(BUBBLE, "marker.color", [new_data_sample[0].otu_id]);
         // }
 
 
         //function to create the gauge chart (level is the score, 1-100)
-        //function build_gauge_chart(zip_data) {
-        function build_gauge_chart(zip) {
+        function build_gauge_chart(zip_data) {
 
 
-          //var level = zip_data['score'];
+          var level = zip_data['score'];
 
-          var level = 85;
+          console.log("level score: " + level);
 
           // Trig to calc meter point
-
             var deg = degrees = ((level*180)/100);
             var degrees = 180-deg,
                  radius = .5;
@@ -223,7 +260,7 @@ var gaugeMarkerSize = 20;
                     color: 'black'
                   }
                 }],
-              title: 'Zip Slip Score for '+zip,
+              title: 'Zip Slip Score for '+zip_data['zip_code'],
               height: 500,
               width: 500,
               xaxis: {zeroline:false, showticklabels:false,
@@ -269,35 +306,23 @@ var gaugeMarkerSize = 20;
 
 
   //get all the initial data, using the default sample id
-  function getData() {
+  function getData(zip) {
 
-    //*Temp
-    var zip = 22180;
+      console.log("running getData for:" + zip);
+      //prev had call to REdata
 
-      //get real estate data
-      Plotly.d3.json("/REdata/"+zip, function(error, REdata){
+
+      //get ALL the data and build the display of the metadata and score
+      Plotly.d3.json("/alldata/"+zip, function(error, zip_data){
           if (error) return console.warn(error);
-          build_real_estate_graph(REdata);
+          //build_meta_data(zip_data, zip);
+          build_real_estate_graph(zip_data['homes']);
+          build_gauge_chart(zip_data);
       })
-
-//********* NEW
-      // //get market health and real estate median prices
-      // Plotly.d3.json("/markethealth/zip", function(error, markethealth){
-      //     if (error) return console.warn(error);
-      //     print(markethealth);
-      // })
-//********* NEW
-
-      //get the metadata and build the display of the metadata and score
-      // Plotly.d3.json("/alldata/"+zip, function(error, zip_data){
-      //     if (error) return console.warn(error);
-      //     build_meta_data(zip_data, zip);
-      //     build_gauge_chart(zip_data);
-      // })
-      build_gauge_chart(zip);
+      //build_gauge_chart(zip);
 
 
   }
 
   //get all the initial data and build the charts and metadata display
-  getData();
+  //getData(zip);
