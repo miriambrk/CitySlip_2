@@ -12,32 +12,60 @@ import csv
 # Python SQL toolkit and Object Relational Mapper
 import sqlalchemy
 from sqlalchemy.ext.automap import automap_base
+from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import Session
 from sqlalchemy import create_engine, func
+from sqlalchemy import Column, Integer, String, Float, Text
 
 #PROJ2: Get the home sales and rentals from the sqlite database
 def get_real_estate_data(zip_code, Home_sales, Rentals,session):
 
+    print("get real estate data zip: " + str(zip_code))
+    # results = session.query( Home_sales.city, Home_sales.state, Home_sales.county).filter(Home_sales.zip_code == zip_code).all()
+    # try:
+    #     print("city: " + results['city'])
+    # except:
+    #     print("error; no city found")
+
+    results = session.query (Home_sales.city, Home_sales.state, Home_sales.county).filter(Home_sales.zip_code == zip_code).all()
+    try:
+        for row in results:
+            city = row[0]
+            state = row[1]
+            county = row[2]
+        print("state: "+state)
+    except:
+        print("unable to get city st and county")
 
     results = session.query( Home_sales.s2014_03, Home_sales.s2014_06, Home_sales.s2014_09, Home_sales.s2014_12,\
          Home_sales.s2015_03, Home_sales.s2015_06, Home_sales.s2015_09, Home_sales.s2015_12, \
          Home_sales.s2016_03, Home_sales.s2016_06, Home_sales.s2016_09, Home_sales.s2016_12, \
          Home_sales.s2017_03, Home_sales.s2017_06, Home_sales.s2017_09,Home_sales.s2017_12).filter(Home_sales.zip_code == zip_code).all()
-    all_homes = pd.DataFrame(results, columns=['2014_03', '2014_06', '2014_09','2014_12', '2015_03','2015_06', '2015_09','2015_12',\
-        '2016_03','2016_06', '2016_09','2016_12','2017_03','2017_06', '2017_09','2017_12'])
+    try:
+        print("NO PROBLEM AT ALL")
 
-    home_values = all_homes.values.tolist()
-    print(home_values)
-    periods = all_homes.columns.tolist()
-    print(periods)
+        all_homes = pd.DataFrame(results, columns=['2014_03', '2014_06', '2014_09','2014_12', '2015_03','2015_06', '2015_09','2015_12',\
+        '2016_03','2016_06', '2016_09','2016_12','2017_03','2017_06', '2017_09','2017_12'])
+        home_values = all_homes.values.tolist()
+        print(home_values)
+        periods = all_homes.columns.tolist()
+        print(periods)
+    except:
+        print("PROBLEM")
+        #z = find_near_zips(zipc, city, state)
+        print("error; no home sales found")
 
     results = session.query( Rentals.r2014_03, Rentals.r2014_06, Rentals.r2014_09, Rentals.r2014_12,\
          Rentals.r2015_03, Rentals.r2015_06, Rentals.r2015_09, Rentals.r2015_12, \
          Rentals.r2016_03, Rentals.r2016_06, Rentals.r2016_09, Rentals.r2016_12, \
          Rentals.r2017_03, Rentals.r2017_06, Rentals.r2017_09,Rentals.r2017_12).filter(Rentals.zip_code == zip_code).all()
-    all_rentals = pd.DataFrame(results, columns=['2014_03', '2014_06', '2014_09','2014_12', '2015_03','2015_06', '2015_09','2015_12',\
-        '2016_03','2016_06', '2016_09','2016_12','2017_03','2017_06', '2017_09','2017_12'])
-    rentals = all_rentals.values.tolist()
+    try:
+        all_rentals = pd.DataFrame(results, columns=['2014_03', '2014_06', '2014_09','2014_12', '2015_03','2015_06', '2015_09','2015_12',\
+            '2016_03','2016_06', '2016_09','2016_12','2017_03','2017_06', '2017_09','2017_12'])
+        rentals = all_rentals.values.tolist()
+    except:
+        #z = find_near_zips(zipc, city, state)
+        print("error; no rentals found")
 
     REdata = []
     for i in range(len(periods)):
@@ -48,8 +76,12 @@ def get_real_estate_data(zip_code, Home_sales, Rentals,session):
         row["rental"] = rentals[0][i]
         REdata.append(row)
 
+    #store the most recent home value and rent for use in score
+    recent_home_value = all_homes.iloc[-1]['2017_12']
+    recent_rent = all_rentals.iloc[-1]['2017_12']
+
     print(REdata)
-    return (REdata)
+    return (REdata, city, state, county, recent_home_value, recent_rent)
 
 #PROJ2: get all market health index from sqlite; also get median home sales and rental price
 # This index indicates the current health of a given region’s housing market relative to other markets nationwide.
@@ -332,133 +364,48 @@ def get_zip_factors (zipc, lat, lng, zip_factors_dict):
 
 #---------------------------------------------------------------#
 
-#Get school data from OnBoard
-# Function requires latitude and longitude, radius in miles; returns counts
-def get_school_data(lat, lng, radius):
-
-    private = 0
-    public = 0
-    cath = 0
-    other = 0
-
-    page_size = 50
-
-    #Onboard API Key
-    onboard_api_key = "727ca1bf9168cb8329806cb7e0eef3f6"
-
-    conn = http.client.HTTPSConnection("search.onboard-apis.com")
-    school_url = "/propertyapi/v1.0.0/school/snapshot?"
-    headers = {
-        'accept': "application/json",
-        'apikey': "727ca1bf9168cb8329806cb7e0eef3f6",
-        }
-
-    point = "latitude=" + str(lat) + "&longitude=" + str(lng) + "&radius=" + str(radius)
-    query_url = school_url + point + "&pageSize=" + str(page_size)
-
-    #print(query_url)
-
-    #request the first page of school data
-    conn.request("GET", query_url, headers=headers)
-
-    res = conn.getresponse()
-    resp = json.loads(res.read())
-    resp
-
-    #counts for types of schools
-    private = 0
-    public = 0
-    cath = 0
-    other = 0
-
-
-    #loop through and count up private and public schools
-    total_schools = resp['status']['total']
-    more_schools = True
-    schools_to_get = total_schools
-    page = 1
-
-    #print("total schools: % s" % total_schools)
-    while more_schools:
-
-        #determine how many results to process
-        if schools_to_get - page_size >= 0:
-            max_s = page_size
-            schools_to_get = schools_to_get - page_size
-        else:
-            max_s = schools_to_get
-
-        for i in range(0, max_s):
-
-            #track number of types of schools
-            sch_type = resp['school'][i]['School']['Filetypetext']
-
-            #print("Type: %s, Name: %s" % (sch_type, resp['school'][i]['School']['InstitutionName']))
-
-            if sch_type == "PRIVATE":
-                private = private + 1
-            elif sch_type == "PUBLIC":
-                public = public + 1
-            elif sch_type == "CATHOLIC":
-                cath = cath + 1
-            else:
-                other = other + 1
-
-        if total_schools - (private+public+cath+other) > 0:
-            #get the next page of data
-            page = page + 1
-
-            query_url = school_url + point + "&pageSize=" + str(page_size) + "&page="+ str(page)
-            #print(query_url)
-            conn.request("GET", query_url, headers=headers)
-
-            res = conn.getresponse()
-            resp = json.loads(res.read())
-            resp
-
-        else:
-            more_schools = False
-    print("\nNumber of Schools")
-    print("private: %s, public: %s, catholic: %s, other: %s" % (private, public, cath, other))
-    return total_schools, private, public, cath
 
 
 #---------------------------------------------------------------#
-
+# UPDATED FOR PROJ2 (2/3/18)
 #function to calculate the city score/zip slip!  Calculate 0-100 score
-# inputs are in the zip_factors_dictionary:
-#   most recent home values and monthly rent for zip code
-#   most recent median home values and median monthly rent
-#   comparison of most recent home value and monthly rent with medians for U.S.
-#   RE market health (0-10)
-#   population growth
-#   age demographics
-#   number of grocery stores
-#   number of movie theaters
-#   number of liquor stores
-#   number of gyms
-#   number of parks
-#   number of shopping malls
-#   walkability (0-100)
-#   schools - use private to public ratio
-#   sales tax percent
-#   crime risk (100 is median)
-#   average temp in Jan
-#   average temp in July
 def compute_score(zip_factors):
+
+    #prepare to write the computed score and meta data to the sql database
+    Base = declarative_base()
+    engine = create_engine("sqlite:///city_slip.sqlite")
+    session = Session(engine)
+
+    class City_Slip(Base):
+        __tablename__ = "city_slip"
+        id = Column(Integer, primary_key=True)
+        zip_code = Column(Integer)
+        city = Column(Text)
+        state = Column(Text)
+        county = Column(Text)
+        score_date = Column(Text)
+        avg_home_value = Column(Float)
+        avg_rent = Column(Float)
+        re_market_health = Column(Float)
+        avg_winter_temp = Column(Float)
+        avg_summer_temp = Column(Float)
+        total_schools = Column(Integer)
+        total_pois = Column(Integer)
+        pop_growth = Column(Float)
+        sales_tax_rate = Column(Float)
+        walkability = Column(Float)
+        crime_risk = Column(Float)
+        score = Column(Float)
 
 
     # compute ratios; closest to 1 is best
     # home and rent each have a max of 0.05
-
-
-
-    #if no home value or rent data, set the scores to a median value but notify user
-    if zip_factors['home_value'] == 0:
+    #if no recent home value or rent data, set the scores to a median value but notify user
+    if zip_factors['recent_sale'] == 0:
         RE_home = 0.025
         print("There is no Home Value Data.")
     else:
-        home_value_ratio = zip_factors['home_value'] / zip_factors['median_home_value']
+        home_value_ratio = zip_factors['recent_sale'] / zip_factors['market_dict']['median_home_value']
 
         #RE_value (home: 0.05; rent: 0.05)
         if home_value_ratio < 1.3:
@@ -468,11 +415,11 @@ def compute_score(zip_factors):
         else:
             RE_home = 0.01
 
-    if zip_factors['rent'] == 0:
+    if zip_factors['recent_rent'] == 0:
         RE_rent = 0.025
         print("There is no Monthly Rental Data.")
     else:
-        rent_ratio = zip_factors['rent'] / zip_factors['median_rent']
+        rent_ratio = zip_factors['recent_rent'] / zip_factors['market_dict']['median_rental_price']
         if rent_ratio < 1.3:
             RE_rent= 0.05
         elif rent_ratio <= 1.8:
@@ -481,13 +428,13 @@ def compute_score(zip_factors):
             RE_rent = 0.01
 
     #market health is 0.05
-    MH = (zip_factors['market_health']/10) * .05
+    MH = (zip_factors['market_dict']['market_health_index']/10) * .05
 
 
     # walkability is a percent -- worth 0.05
-    WK = (zip_factors['walk_score']/100) * 0.05
+    WK = (zip_factors['community_dict']['walk_score']/100) * 0.05
 
-    tax_rate = float(zip_factors['sales_tax_rate'])
+    tax_rate = float(zip_factors['community_dict']['sales_tax'])
     #tax - worth 0.05
     if tax_rate == 0:
         TX = 0.05
@@ -503,7 +450,7 @@ def compute_score(zip_factors):
         TX = 0
 
     #crime risk (100 is median); worth 0.15
-    crime = float(zip_factors['crime_risk'])
+    crime = float(zip_factors['community_dict']['crime'])
     if crime < 100:
         CM = .15
     elif crime <= 150:
@@ -514,7 +461,7 @@ def compute_score(zip_factors):
         CM = 0
 
     #weather; worth .1 total
-    avg_jan = float(zip_factors['avg_temp_jan'])
+    avg_jan = float(zip_factors['community_dict']['avg_jan'])
     if avg_jan < 20:
         WW = 0
     elif avg_jan < 30:
@@ -526,7 +473,7 @@ def compute_score(zip_factors):
     else:
         WW = 0.05
 
-    avg_jul = float(zip_factors['avg_temp_jul'])
+    avg_jul = float(zip_factors['community_dict']['avg_jul'])
     if avg_jul > 100:
         WS = 0
     elif avg_jul > 90:
@@ -540,7 +487,10 @@ def compute_score(zip_factors):
 
 
     #population growth: 0.10 total
+    ##########  NEED To GET RID OF THE ASSIGNMENT TO 0 WHEN THE REAL POP-GROWTH DATA IS AVAILABLE
+    zip_factors['pop_growth'] = 0
     pop_growth = float(zip_factors['pop_growth'])
+    #temporary; delete when the real thing is available
     if pop_growth < 0:
         PG = 0
     elif pop_growth >= 0.07:
@@ -549,7 +499,10 @@ def compute_score(zip_factors):
         PG = 0.1
 
     #POIs: total worth: .3 broken down as follows:
-    points_of_interest = float(zip_factors['poi'])
+
+    points_of_interest = zip_factors['poi_json']['Groceryorsupermarket'] + \
+        zip_factors['poi_json']['Gym'] + zip_factors['poi_json']['Liquorstore'] + zip_factors['poi_json']['Movietheater'] + \
+        zip_factors['poi_json']['Park'] + zip_factors['poi_json']['Shoppingmall']
     if points_of_interest < 400:
     	POI = .1
     elif points_of_interest < 800:
@@ -558,10 +511,12 @@ def compute_score(zip_factors):
     	POI = .3
 
     #use ratio of private to public schools; 0.1 total
-    if zip_factors['public_schools'] == 0:
+    if zip_factors['community_dict']['public_school'] == 0:
         SCH = 0
     else:
-        SCH = ((zip_factors['private_schools'] + zip_factors['cath_schools']) / zip_factors['public_schools']) * 0.1
+        sum_schools = zip_factors['community_dict']['private_school'] + zip_factors['community_dict']['catholic_school'] + zip_factors['community_dict']['public_school']
+        SCH = ((zip_factors['community_dict']['private_school'] + \
+            zip_factors['community_dict']['catholic_school']) / zip_factors['community_dict']['public_school']) * 0.1
         #if ratio of private to public is over 1, then cap the SCH score
         if SCH > 0.1:
             SCH = 0.1
@@ -588,9 +543,27 @@ def compute_score(zip_factors):
     print()
     print("CitySlip Score (0-100): %s" % round(score * 100,2))
 
-    # write the outputs of the score to a csv file
-    f =  open('Output.csv', 'a', newline='')
-    outwriter = csv.writer(f)
-    outwriter.writerow([zip_code, city, county, state, date, round(RE_home*100, 2), round(RE_rent*100, 2), round(MH*100, 2), round(WW*100, 2), round(WS*100, 2), round(SCH*100, 2), round(POI*100, 2), round(PG*100, 2), round(TX*100, 2),round(WK*100, 2), round(CM*100, 2), round(score*100, 2)])
-    f.close()
+    #write the metadata to the City_Slip database
+    score_data = City_Slip(
+        zip_code = zip_factors['zip_code'],
+        city = zip_factors['city'],
+        state = zip_factors['state'],
+        county = zip_factors['county'],
+        score_date = date,
+        avg_home_value = zip_factors['recent_sale'],
+        avg_rent = zip_factors['recent_rent'],
+        re_market_health = zip_factors['market_dict']['market_health_index'],
+        avg_winter_temp = zip_factors['community_dict']['avg_jan'],
+        avg_summer_temp = zip_factors['community_dict']['avg_jul'],
+        total_schools = sum_schools,
+        total_pois = points_of_interest,
+        pop_growth = float(zip_factors['pop_growth']),
+        sales_tax_rate = float(zip_factors['community_dict']['sales_tax']),
+        walkability = zip_factors['community_dict']['walk_score'],
+        crime_risk = zip_factors['community_dict']['crime'],
+        score = score)
+
+    session.add(score_data)
+    session.commit()
+
     return score
