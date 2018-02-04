@@ -12,10 +12,35 @@ d3.select("#zip_button")
 function checkzip(code) {
     Plotly.d3.json("/zip_latlng/" + code, function(errr, data){
         
-    poi_pie(data.LAT, data.LON)
-    age_pie(data.ZIP_CODE)
-    getData(data.ZIP_CODE)
+        if (Object.keys(data).length < 3){
+            console.log("empty")
+            var zipCode = prompt("Sorry, there is no data for that zipcode, please enter another");
+            checkzip(zipCode)
+        }
+        else{
+            
+            poi_pie(data.LAT, data.LON)
+            age_pie(data.ZIP_CODE)
+            getData(data.ZIP_CODE)
+            zipMap(data.LAT, data.LON) 
+        }   
+    
 })};
+
+function zipMap(lat, lng){
+    var myMap = L.map("map", {
+        center: [lat, lng],
+        zoom: 13,
+    });
+
+    L.tileLayer("https://api.mapbox.com/styles/v1/mapbox/outdoors-v10/tiles/256/{z}/{x}/{y}?" +
+    "access_token=pk.eyJ1IjoiYmxhc2VyMjIiLCJhIjoiY2pjc2F3NXBmMHBzNjJxbnE2MjkzZWhmOCJ9.PGCeud8Kd0hTJ4Eh-w6nFg").addTo(myMap);
+
+    var marker = L.marker([lat, lng], {
+        draggable: true
+    }).addTo(myMap);
+};
+
 
 // POI pie plot taking lat/lng from checkzip funciton
 function poi_pie(lat, lng){
