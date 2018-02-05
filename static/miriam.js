@@ -204,13 +204,102 @@ var mycolorsgauge = ['rgba(0, 255, 0, .5)',
         //     Plotly.restyle(PIE, "hovertext", [new_top_ten_otu_desc]);
         //
         // }
+var zip_data =
+[
+{
+_0_09: 2955,_10_19: 4514,_20_29: 2361,_30_39: 2059,_40_49: 3529,_50_59: 4708,_60_69: 3659,_70_plus: 2858,
+avg_jan: "34.00",
+avg_jul: "77.60",
+bike_description: "",
+bike_score: 0,
+catholic_school: 7,
+crime: "34",
+market_health_index: 1.9001585980000002,
+median_home_value: 184200,
+median_rental_price: 1338,
+other_school: 0,
+pop_growth: 0,
+private_school: 33,
+public_school: 67,
+sales_tax: "6.00",
+score: 0.6762022855273133,
+walk_description: "Very Walkable",
+walk_score: 74
+},
+{
+Groceryorsupermarket: 27,Gym: 141,Liquorstore: 37,Movietheater: 7,Park: 126,Shoppingmall: 75
+},
+{
+COUNTY: "Fairfax County",POPULATION_2010: 1086767,POPULATION_2011: 1105410,POPULATION_2012: 1120382,
+POPULATION_2013: 1132543,POPULATION_2014: 1135388,POPULATION_2015: 1137472,POPULATION_2016: 1138652,
+STATE: "Virginia",
+diff_2010_2011: 1.72,diff_2010_2016: 4.77,diff_2011_2012: 1.35,diff_2012_2013: 1.09,
+diff_2013_2014: 0.25,diff_2014_2015: 0.18,diff_2015_2016: 0.1
+},
+[
+{
+home_value: 797300,period: "2014_03",rental: 3473
+},
+{
+home_value: 800800,period: "2014_06",rental: 3438
+},
+{
+home_value: 792000,period: "2014_09",rental: 3401
+},
+{
+home_value: 795400,period: "2014_12",rental: 3348
+},
+{
+home_value: 801500,period: "2015_03",rental: 3352
+},
+{home_value: 802900,period: "2015_06",rental: 3408
+},
+{
+home_value: 801500,period: "2015_09",rental: 3416
+},
+{
+home_value: 802900,period: "2015_12",rental: 3391
+},
+{
+home_value: 808700,period: "2016_03",rental: 3373
+},
+{
+home_value: 812600,period: "2016_06",rental: 3362
+},
+{
+home_value: 817000,period: "2016_09",rental: 3385
+},
+{
+home_value: 834200,period: "2016_12",rental: 3432
+},
+{
+home_value: 831700,period: "2017_03",rental: 3430
+},
+{
+home_value: 812800,period: "2017_06",rental: 3423
+},
+{
+home_value: 812600,period: "2017_09",rental: 3408
+},
+{
+home_value: 806600,period: "2017_12",rental: 3404
+}
+],
+[
+{
+city: "VIENNA",county: "Fairfax",home_value: 806600,
+rental: 3404,state: "VA",zip: "22182"
+}
+]
+]
 
 
         //function to create the gauge chart (level is the score, 1-100)
         function build_gauge_chart(zip_data) {
 
 
-          var level = zip_data[0]['score'];
+          //var level = zip_data[0]['score'] * 100;
+          var level = zip_data[0]['score'].toPrecision(2) * 100;
 
           console.log("level score: " + level);
 
@@ -288,18 +377,19 @@ var mycolorsgauge = ['rgba(0, 255, 0, .5)',
                 app.removeChild(h6data);
               }
             }
-
+            console.log(zip_data);
 
             //put the metadata into h6 tags
             var h6data = document.createElement("h6");
             //city, state, zip on first line
-            h6data.innerHTML = zip_data[4]['city'] + ", " + zip_data[4]['state'] + " " +zip_data[4]['zip_code'];
+            h6data.innerHTML = zip_data[4][0]['city'] + ", " + zip_data[4][0]['state'] + " " +zip_data[4][0]['zip'];
             app.appendChild(h6data);
             var h6data = document.createElement("h6");
-            h6data.innerHTML = 'Avg Home Value: $' +  zip_data[4]['recent_sale'].toLocaleString();
+            console.log(zip_data[4][0]);
+            h6data.innerHTML = 'Avg Home Value: $' +  zip_data[4][0]['home_value'].toLocaleString();
             app.appendChild(h6data);
             var h6data = document.createElement("h6");
-            h6data.innerHTML = 'Avg Rent: $' +  zip_data[4]['recent_rent'].toLocaleString();
+            h6data.innerHTML = 'Avg Rent: $' +  zip_data[4][0]['rental'].toLocaleString();
             app.appendChild(h6data);
             var h6data = document.createElement("h6");
             h6data.innerHTML = 'Avg Winter Temp (\xB0F): ' +  zip_data[0]['avg_jan'];
@@ -329,6 +419,247 @@ var mycolorsgauge = ['rgba(0, 255, 0, .5)',
             app.appendChild(h6data);
           }
 
+          function build_real_estate_graph(REdata) {
+
+            var svgWidth = 600;
+            var svgHeight = 500;
+
+            var margin = { top: 20, right: 40, bottom: 80, left: 100 };
+
+            var width = svgWidth - margin.left - margin.right;
+            var height = svgHeight - margin.top - margin.bottom;
+            var yMax;
+            var yMin;
+
+
+            // Create a function to parse date (YYYY-MM)
+            var parseTime = d3.timeParse("%Y_%m");
+            // Format the data
+            REdata.forEach(function(data) {
+              data.period = parseTime(data.period);
+              data.home_value = +data.home_value;
+              data.rental = +data.rental;
+            });
+
+            // Create an SVG wrapper, append an SVG group that will hold the chart, and shift the latter by left and top margins.
+            var svg = d3.select(".chart")
+              .append("svg")
+              .attr("width", svgWidth)
+              .attr("height", svgHeight)
+              .append("g")
+              .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+            var chart = svg.append("g");
+
+            // Append a div to the body to create tooltips, assign it a class
+            d3.select(".chart")
+              .append("div")
+              .attr("class", "tooltip")
+              .style("opacity", 0);
+
+              // This function identifies the minimum and maximum values in a column
+              // and assign them to yMin and yMax variables, which will define the axis domain
+              function findMinAndMax(dataColumnY) {
+                yMin = d3.min(REdata, function(data) {
+                return +data[dataColumnY] * 0.8;
+                });
+                yMax = d3.max(REdata, function(data) {
+                  return +data[dataColumnY] * 1.1;
+                });
+              }
+
+            // The default y-axis is 'home_value'
+            // Another axis can be assigned to the variable during an onclick event.
+            // This variable is key to the ability to change axis/data column
+            var currentAxisLabelX = "period";
+            var currentAxisLabelY = "home_value";
+
+            // Call findMinAndMax() with defaults
+            findMinAndMax(currentAxisLabelY);
+
+            var xTimeScale = d3.scaleTime()
+              .range([0, width]);
+
+            // Create scale functions
+            var yLinearScale = d3.scaleLinear()
+              .range([height, 0]);
+
+            // var xLinearScale = d3.scaleLinear()
+            //   .range([0, width]);
+
+            // Create axis functions
+            //var bottomAxis = d3.axisBottom(xLinearScale);
+            var bottomAxis = d3.axisBottom(xTimeScale)
+              // Specify the number of tick marks (approximately).
+              .ticks(15);
+            var leftAxis = d3.axisLeft(yLinearScale);
+
+            // Scale the domain
+            xTimeScale.domain(d3.extent(REdata, function(data) {
+              return data.period;
+            }));
+            yLinearScale.domain([yMin, yMax]);
+
+            //add the tool tip
+            var toolTip = d3.tip()
+              .attr("class", "tooltip")
+              .offset([0,0])
+
+              .html(function(data) {
+
+                if (currentAxisLabelY === "home_value") {
+                  var yString = data.home_value;
+                }
+                else {
+                  var yString = data.rental;
+                };
+
+                var formatPeriod = d3.timeFormat("%Y-%m");
+                xString = formatPeriod(data.period);
+
+                return (xString + ": $" + yString);
+              });
+
+            chart.call(toolTip);
+
+            // create the circles
+            chart.selectAll("circle")
+              .data(REdata)
+              .enter()
+                .append("circle")
+                .attr("cx", function(data, index) {
+                  //return xLinearScale(+data[currentAxisLabelX]);
+                  return xTimeScale(data[currentAxisLabelX]);
+                })
+                .attr("cy", function(data, index) {
+                  return yLinearScale(+data[currentAxisLabelY]);
+                })
+                .attr("r", "5")
+                .attr("stroke","black")
+                .attr("fill", "blue")
+
+                //on hover, show the tooltip
+                .on("mouseover", function(data) {
+                  toolTip.show(data);
+                })
+                // onmouseout event hide the tooltip
+                .on("mouseout", function(data, index) {
+                  toolTip.hide(data);
+                });
+
+
+            //append x axis
+            chart.append("g")
+              .attr("transform", `translate(0, ${height})`)
+              .attr("class","x-axis") //used for transition
+              .call(bottomAxis);
+
+            //append y axis
+            chart.append("g")
+              .attr("class","y-axis")
+              .call(leftAxis);
+
+            //y-axis label; all y-axis labels will always be inactive. the only way to select an axis is through the x-axis
+            // first y-axis is considered selected and bolded
+
+            //x-axis label always selected; y label is selectable (active or inactive)
+            chart.append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", 0 - margin.left + 30)
+                .attr("x", 0 - (height / 1.7))  // make 1.5 smaller to get the axis title to move down a bit
+                .attr("dy", "1em")
+                .attr("class", "axis-text active")
+                //default
+                .attr("data-axis-name", "home_value")
+                .text("Home Prices ($)")
+
+            //append the unselected Y labels
+            chart.append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", 0 - margin.left + 10)
+                .attr("x", 0 - (height / 1.7))  // make 1.5 smaller to get the axis title to move down a bit
+                .attr("dy", "1em")
+                .attr("class", "axis-text inactive")
+                .attr("data-axis-name", "rental")
+                .text("Monthly Rent ($)")
+
+
+
+            // Append x-axis labels
+            chart.append("text")
+              .attr("transform", "translate(" + (width / 2) + " ," + (height + margin.top + 20) + ")") //make 2.5 larger to get title to move left
+              .attr("class", "axis-text x-selected")
+              //default
+              .attr("data-axis-name", "period")
+              .text("Period")
+
+
+            //handle the axis change
+            function labelChange(clickedAxis) {
+              d3
+                .selectAll(".axis-text")
+                .filter(".active")
+                // An alternative to .attr("class", <className>) method. Used to toggle classes.
+                .classed("active", false)
+                .classed("inactive", true);
+              clickedAxis.classed("inactive", false).classed("active", true);
+            }
+
+
+
+
+              //CLICKED Y AXIS!!!
+              d3.selectAll(".axis-text").on("click", function() {
+              // Assign a variable to current axis
+                var clickedSelection = d3.select(this);
+
+                // "true" or "false" based on whether the axis is currently selected
+                var isClickedSelectionInactive = clickedSelection.classed("inactive");
+
+                // Grab the data-attribute of the axis and assign it to a variable
+                var clickedAxis = clickedSelection.attr("data-axis-name");
+
+                // The onclick events below take place only if the x-axis is inactive
+                // Clicking on an already active axis will therefore do nothing
+                if (isClickedSelectionInactive) {
+                  // Assign the clicked axis to the variable currentAxisLabelX
+                  currentAxisLabelY = clickedAxis;
+
+                  //find min and max domain values
+                  findMinAndMax(currentAxisLabelY);
+                  // Set the domain for the y-axis
+                  yLinearScale.domain([yMin, yMax]);
+
+                  // Create a transition effect for the y-axis
+                  svg
+                    .select(".y-axis")
+                    .transition()
+                    .duration(1000)
+                    .call(leftAxis);
+
+                  // Select all circles to create a transition effect, then relocate the horizontal and vertical location
+                  // based on the new axis that was selected/clicked
+                  d3.selectAll("circle").each(function() {
+                    d3
+                      .select(this)
+                      .transition()
+
+                      // .attr("cx", function(data, index) {
+                      //   return xTimeScale(data[currentAxisLabelX]);
+                      // })
+                      .attr("cy", function(data, index) {
+                        return yLinearScale(+data[currentAxisLabelY]);
+                      })
+                      .duration(500);
+                  });
+
+                  // Change the status of the axes.
+                  labelChange(clickedSelection);
+
+                }
+              });
+
+          }
 
 
 
@@ -360,3 +691,7 @@ var mycolorsgauge = ['rgba(0, 255, 0, .5)',
 
   //get all the initial data and build the charts and metadata display
   //getData(zip);
+
+  build_meta_data(zip_data);
+  build_real_estate_graph(zip_data[3]);
+  build_gauge_chart(zip_data);
