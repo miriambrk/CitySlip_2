@@ -10,10 +10,7 @@ import kris_functions as kris
 import requests as req
 import json
 from nathan_functions import barfinder
-
-#from zip_functions import bar_finder, cen_block_query, population_df_generator, get_real_estate_extremes
-#from zip_functions import find_near_zips, get_home_data, age_demographics_zip, get_details, get_zip_factors, get_school_data, compute_score
-from miriam_functions import get_real_estate_data, get_market_health_and_extremes, compute_score
+from miriam_functions import get_real_estate_data, compute_score
 
 app = Flask(__name__)
 
@@ -35,7 +32,7 @@ census = Base.classes.census_pop
 #default_zip = 22180
 
 #create zip_factors_dict which will hold all the metadata
-zip_factors_dict = {}
+#zip_factors_dict = {}
 
 
 
@@ -71,11 +68,13 @@ def index():
 
 ###### NEW #################
 #return market health index
-@app.route("/markethealth/<zip>")
-def markethealth(zip):
+@app.route("/REdata/<zip>")
+def REdata(zip):
 
-    market_dict = get_market_health_and_extremes(zip, Market_Health, Home_sales, Rentals, session)
-    return(jsonify(market_dict))
+    REdata, re_dict = get_real_estate_data(zip, Home_sales, Rentals, session)
+
+    return(jsonify(REdata, re_dict))
+    #return(jsonify(REdata))
 ###### NEW #################
 
 # EXAMPLE URL:  /POIdata?lat=38.83&lng=-76.52
@@ -155,64 +154,17 @@ def community(zip):
 def get_alldata(zip):
 
     print("ALLDATA: " + str(zip))
-    #first get the lat/long of the zip code
-    sel = [zip_latlon.zip_code, zip_latlon.lat, zip_latlon.lon]
-    results = session.query(*sel).\
-        filter(zip_latlon.zip_code ==zip)
-    zip_data = {}
-    for result in results:
-        zip_data['ZIP_CODE'] = result[0]
-        zip_data['LAT'] = result[1]
-        zip_data['LON'] = result[2]
 
-    #get the real estate data
-    zip_factors_dict["zip_code"] = zip
-    zip_factors_dict["homes"], zip_factors_dict["city"], zip_factors_dict["state"], zip_factors_dict["county"], zip_factors_dict["recent_sale"], \
-            zip_factors_dict['recent_rent'] = get_real_estate_data(zip, Home_sales, Rentals, session)
-    zip_factors_dict["market_dict"] = get_market_health_and_extremes(zip, Market_Health, Home_sales, Rentals, session)
-
-    #get the POI data
-    lat = zip_data['LAT']
-    lng = zip_data['LON']
-    zip_factors_dict['poi_json'] = barfinder(lat,lng)
-
-    #get the census data
-    cen_block_url = ('http://data.fcc.gov/api/block/find?format=json&latitude=%s&longitude=%s&showall=true' % (lat, lng))
-    lat_lon_county = req.get(cen_block_url).json()
-    county_name = lat_lon_county['County']['name']+ ' County'
-    state_name = lat_lon_county['State']['name']
-    print(state_name)
-
-    zip_factors_dict['state_name'] = state_name
+    #get all the community and real estate data used to compute the score
+    community_dict, poi_data, census_dict, REdata, re_dict = kris.get_community_data(zip, census, zip_latlon, Market_Health, Home_sales, Rentals, session)
 
 
-    sel = [census.state, census.county, census.pop_2010,census.pop_2011,census.pop_2012,
-    census.pop_2013, census.pop_2014, census.pop_2015,census.pop_2016]
-    county_census_pop = session.query(*sel).\
-        filter(census.county == county_name)
+    #compute the score and store in community_dict
+    community_dict["score"] = compute_score(community_dict, poi_data, census_dict, REdata, re_dict)
 
-    # Match County and State name to retrieve population information from 2010 through 2016
-    pop_data = {}
-    for row in county_census_pop:
-        pop_data['STATE'] = row[0]
-        pop_data['COUNTY'] = row[1]
-        pop_data['POPULATION_2010'] = row[2]
-        pop_data['POPULATION_2011'] = row[3]
-        pop_data['POPULATION_2012'] = row[4]
-        pop_data['POPULATION_2013'] = row[5]
-        pop_data['POPULATION_2014'] = row[6]
-        pop_data['POPULATION_2015'] = row[7]
-        pop_data['POPULATION_2016'] = row[8]
 
-    #get community data
-    zip_factors_dict["community_dict"] = kris.get_community_data(zip, zip_latlon, Market_Health, Home_sales, Rentals, session)
 
-    #compute the score
-    zip_factors_dict["score"] = compute_score(zip_factors_dict)
-
-    print(zip_factors_dict)
-
-    return(jsonify(zip_factors_dict))
+    return(jsonify(community_dict, poi_data, census_dict, REdata, re_dict))
 
     #return render_template("index.html")
 

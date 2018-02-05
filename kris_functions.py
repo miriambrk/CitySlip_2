@@ -10,6 +10,7 @@ from datetime import datetime
 import time as time
 import csv
 import os
+from miriam_functions import get_real_estate_data
 
 
 
@@ -61,14 +62,14 @@ import os
 #         pop_data['COUNTY'] = result[4]
 #     # pops = []
 #     # for row in county_census_pop:
-#     #     if str.lower(county_name) in row['county'] and row['state'] == str.lower(state_name): 
+#     #     if str.lower(county_name) in row['county'] and row['state'] == str.lower(state_name):
 #     #         pops.append(int(row[2]))
 #     #         pops.append(int(row[3]))
 #     #         pops.append(int(row[4]))
 #     #         pops.append(int(row[5]))
 #     #         pops.append(int(row[6]))
 #     #         pops.append(int(row[7]))
-#     #         pops.append(int(row[8]))         
+#     #         pops.append(int(row[8]))
 #     #     else:
 #     #         next
 
@@ -128,11 +129,11 @@ import os
 def get_market_health_and_extremes(zip, Market_Health, Home_sales, Rentals, session):
     market_dict = {}
     results = session.query( Market_Health.market_health_index).filter(Market_Health.zip_code == zip).all()
-    try:
+    if len(results) > 0:
         for mhi in results:
             market_health_index = mhi.market_health_index
         market_dict['market_health_index'] = market_health_index
-    except:
+    else:
         #no market health data for input zip code; store 0 as a N/A value
         market_dict["market_health_index"] = 0
     print("Market Health: %s" % market_dict['market_health_index'])
@@ -151,74 +152,6 @@ def get_market_health_and_extremes(zip, Market_Health, Home_sales, Rentals, sess
     market_dict["median_rental_price"] = median_rental_price
     return market_dict
 ### END GET GET MARKET HEALTH
-###------------------------------------------###
-###------------------------------------------###
-### START GET REAL ESTATE DATA
-def get_real_estate(zip, Home_sales, Rentals, session):
-    sales_sel = [Home_sales.zip_code, Home_sales.city, Home_sales.state, Home_sales.county,
-         Home_sales.s2014_03, Home_sales.s2014_06, Home_sales.s2014_09, Home_sales.s2014_12,
-         Home_sales.s2015_03, Home_sales.s2015_06, Home_sales.s2015_09, Home_sales.s2015_12, 
-         Home_sales.s2016_03, Home_sales.s2016_06, Home_sales.s2016_09, Home_sales.s2016_12,
-         Home_sales.s2017_03, Home_sales.s2017_06, Home_sales.s2017_09,Home_sales.s2017_12]
-    sales_results = session.query(*sales_sel).\
-        filter(Home_sales.zip_code == zip).all()
-    sales_dict = {}
-    for row in sales_results:
-        sales_dict['zip_code'] = row[0]
-        sales_dict['city'] = row[1]
-        sales_dict['state'] = row[2]
-        sales_dict['county'] = row[3]
-        sales_dict['s2014_03'] = row[4]
-        sales_dict['s2014_06'] = row[5]
-        sales_dict['s2014_09'] = row[6]
-        sales_dict['s2014_12'] = row[7]
-        sales_dict['s2015_03'] = row[8]
-        sales_dict['s2015_06'] = row[9]
-        sales_dict['s2015_09'] = row[10]
-        sales_dict['s2015_12'] = row[11]
-        sales_dict['s2016_03'] = row[12]
-        sales_dict['s2016_06'] = row[13]
-        sales_dict['s2016_09'] = row[14]
-        sales_dict['s2016_12'] = row[15]
-        sales_dict['s2017_03'] = row[16]
-        sales_dict['s2017_06'] = row[17]
-        sales_dict['s2017_09'] = row[18]
-        sales_dict['s2017_12'] = row[19]
-    print(sales_dict)
-    print(len(sales_dict))
-    rental_sel = [Rentals.zip_code, Rentals.city, Rentals.state, Rentals.county,
-         Rentals.r2014_03, Rentals.r2014_06, Rentals.r2014_09, Rentals.r2014_12,
-         Rentals.r2015_03, Rentals.r2015_06, Rentals.r2015_09, Rentals.r2015_12, 
-         Rentals.r2016_03, Rentals.r2016_06, Rentals.r2016_09, Rentals.r2016_12, 
-         Rentals.r2017_03, Rentals.r2017_06, Rentals.r2017_09,Rentals.r2017_12]
-    rental_results = session.query(*rental_sel).\
-        filter(Rentals.zip_code == zip).all()
-    rentals_dict = {}
-    print(len(rental_results))
-    for row in rental_results:
-        rentals_dict['zip_code'] = row[0]
-        rentals_dict['city'] = row[1]
-        rentals_dict['state'] = row[2]
-        rentals_dict['county'] = row[3]
-        rentals_dict['r2014_03'] = row[4]
-        rentals_dict['r2014_06'] = row[5]
-        rentals_dict['r2014_09'] = row[6]
-        rentals_dict['r2014_12'] = row[7]
-        rentals_dict['r2015_03'] = row[8]
-        rentals_dict['r2015_06'] = row[9]
-        rentals_dict['r2015_09'] = row[10]
-        rentals_dict['r2015_12'] = row[11]
-        rentals_dict['r2016_03'] = row[12]
-        rentals_dict['r2016_06'] = row[13]
-        rentals_dict['r2016_09'] = row[14]
-        rentals_dict['r2016_12'] = row[15]
-        rentals_dict['r2017_03'] = row[16]
-        rentals_dict['r2017_06'] = row[17]
-        rentals_dict['r2017_09'] = row[18]
-        rentals_dict['r2017_12'] = row[19]
-
-    return rentals_dict, sales_dict
-### END GET REAL ESTATE DATA
 ###------------------------------------------###
 
 ###------------------------------------------###
@@ -398,12 +331,12 @@ def get_schools(zip, zip_latlon, session):
             resp
         else:
             more_schools = False
- #DICT USED IN THE FLASK APP TO JSONIFY           
+ #DICT USED IN THE FLASK APP TO JSONIFY
     school_dict = {
         "private_school": private,
         "public_school": public,
         "catholic_school": cath,
-        "other_school": other 
+        "other_school": other
     }
     return school_dict
 ### END GET SCHOOLS FUNCTION
@@ -530,7 +463,7 @@ def get_community_data(zip, census, zip_latlon, Market_Health, Home_sales, Renta
     market = get_market_health_and_extremes(zip, Market_Health, Home_sales, Rentals, session)
     walk = get_walk(zip, zip_latlon, session)
     poi_data = barfinder(zip, zip_latlon, session)
-    
+
     community_dict['private_school'] = school['private_school']
     community_dict['public_school'] = school['public_school']
     community_dict['catholic_school'] = school['catholic_school']
@@ -542,11 +475,12 @@ def get_community_data(zip, census, zip_latlon, Market_Health, Home_sales, Renta
     community_dict['walk_description'] = walk['walk_description']
     community_dict['bike_score'] = walk['bike_score']
     community_dict['bike_description'] = walk['bike_description']
-    real_estate = get_real_estate(zip, Home_sales, Rentals, session)
+    #real_estate = get_real_estate(zip, Home_sales, Rentals, session)
+
+    #note: will need to jsonify REdata and re_dict
+    REdata, re_dict = get_real_estate_data(zip, Home_sales, Rentals, session)
     census_dict = census_data(zip,zip_latlon, census, session)
     #Community dict used for FLASK app to jsonify
-    return [community_dict, poi_data, census_dict, real_estate]
+    return [community_dict, poi_data, census_dict, REdata, re_dict]
 ### END GET COMMUNITY DATA FUNCTION
 ###------------------------------------------###
-
-
