@@ -9,6 +9,11 @@ h2 {
     text-align: center;
 }
 
+h6 {
+    color: #219B9D;
+    font-size: 14px;
+}
+
 p{
     font-size: 20px;
 }
