@@ -330,9 +330,7 @@ def compute_score(zip_factors, poi_data, census_dict, REdata, re_dict):
 
 
     #population growth: 0.10 total
-    ##########  NEED To GET RID OF THE ASSIGNMENT TO 0 WHEN THE REAL POP-GROWTH DATA IS AVAILABLE
-    zip_factors['pop_growth'] = 0
-    pop_growth = float(zip_factors['pop_growth'])
+    pop_growth = float(census_dict['diff_2010_2016'])
     #temporary; delete when the real thing is available
     if pop_growth < 0:
         PG = 0
@@ -398,7 +396,7 @@ def compute_score(zip_factors, poi_data, census_dict, REdata, re_dict):
         avg_summer_temp = zip_factors['avg_jul'],
         total_schools = sum_schools,
         total_pois = points_of_interest,
-        pop_growth = float(zip_factors['pop_growth']),
+        pop_growth = pop_growth,
         sales_tax_rate = float(zip_factors['sales_tax']),
         walkability = zip_factors['walk_score'],
         crime_risk = zip_factors['crime'],
