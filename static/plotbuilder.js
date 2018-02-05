@@ -19,10 +19,9 @@ function checkzip(code) {
         }
         else{
             
-            poi_pie(data.LAT, data.LON)
-            age_pie(data.ZIP_CODE)
+            poi_pie(data.LAT, data.LON, data.ZIP_CODE)
+            age_pie(data.LAT, data.LON, data.ZIP_CODE)
             getData(data.ZIP_CODE)
-            zipMap(data.LAT, data.LON) 
         }   
     
 })};
@@ -43,7 +42,7 @@ function zipMap(lat, lng){
 
 
 // POI pie plot taking lat/lng from checkzip funciton
-function poi_pie(lat, lng){
+function poi_pie(lat, lng, zip){
     // call the route with the POI data
     Plotly.d3.json("/POIdata?lat=" + lat + "&lng=" + lng ,function(errr, data){
         // create the total number of places of interest and the percentages, place in pie values list
@@ -86,15 +85,16 @@ function poi_pie(lat, lng){
             height: 400,
             width: 500,
             paper_bgcolor:'rgba(0,0,0,0)',
-            plot_bgcolor:'rgba(0,0,0,0)'
+            plot_bgcolor:'rgba(0,0,0,0)',
+            title: 'POI Breakdown for '+zip,
         };
         
         // plot the chart
         Plotly.newPlot('POI-pie', piedata, layout);
-    
+        
 })};
 
-function age_pie(zip){
+function age_pie(lat, lng, zip){
     // call the route with the POI data
     Plotly.d3.json("/community/" + zip, function(errr, data){
         // create the total number of places of interest and the percentages, place in pie values list
@@ -140,16 +140,17 @@ function age_pie(zip){
             height: 400,
             width: 500,
             paper_bgcolor:'rgba(0,0,0,0)',
-            plot_bgcolor:'rgba(0,0,0,0)'
+            plot_bgcolor:'rgba(0,0,0,0)',
+            title: 'Age Demographics for '+zip,
         };
         
         // plot the chart
         Plotly.newPlot('age-pie', piedata, layout);
-    
+        zipMap(lat,lng)
 })};
 
 var originalWidth = document.getElementById('cont1').clientWidth;
-var gaugeMarkerSize = 20;
+var gaugeMarkerSize = 10;
 var mycolorsgauge = ['rgba(0, 255, 0, .5)',
 'rgba(191, 255, 0, .5)',
  'rgba(255, 255, 0, .5)',
