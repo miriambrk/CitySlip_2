@@ -210,7 +210,7 @@ var mycolorsgauge = ['rgba(0, 255, 0, .5)',
         function build_gauge_chart(zip_data) {
 
 
-          var level = zip_data['score'];
+          var level = zip_data[0]['score'];
 
           console.log("level score: " + level);
 
@@ -240,7 +240,7 @@ var mycolorsgauge = ['rgba(0, 255, 0, .5)',
                 hoverinfo: 'text'},
                 { values: [40/5, 40/5, 40/5, 40/5, 40/5, 40],
                 rotation: 90,
-                text: ['Great','Good', 'Adequate', 'Poor', 'Unacceptable', ''],
+                text: ['Great','Good', 'Adequate', 'Poor', 'Awful', ''],
                 textinfo: 'text',
                 textposition:'inside',
                 marker: {colors: mycolorsgauge},
@@ -260,9 +260,9 @@ var mycolorsgauge = ['rgba(0, 255, 0, .5)',
                     color: 'black'
                   }
                 }],
-              title: 'Zip Slip Score for '+zip_data['zip_code'],
-              height: 500,
-              width: 500,
+              title: 'Zip Slip Score for '+zip_data[4]['zip_code'],
+              height: 350,
+              width: 350,
               xaxis: {zeroline:false, showticklabels:false,
                          showgrid: false, range: [-1, 1]},
               yaxis: {zeroline:false, showticklabels:false,
@@ -274,52 +274,86 @@ var mycolorsgauge = ['rgba(0, 255, 0, .5)',
 
 
 
-        // //function build_meta data
-        // function build_meta_data(data_meta,sample) {
-        //
-        //   var app = document.querySelector("#meta_list");
-        //
-        //     //first need to remove any data that might be there, and then populate it
-        //     //get the H6 data associated with the #meta_list
-        //     var h6data = document.querySelector("#meta_list > h6");
-        //     if (h6data !== null) {
-        //       for (i=0; i<6; i++) {
-        //         var h6data = document.querySelector("#meta_list > h6");
-        //         app.removeChild(h6data);
-        //       }
-        //     }
-        //
-        //     //put the metadata into h6 tags
-        //     var h6data = document.createElement("h6");
-        //     h6data.innerHTML = "SAMPLEID: " + "BB_" + sample;
-        //     app.appendChild(h6data);
-        //
-        //     metalabels = ['AGE','BBTYPE','ETHNICITY','GENDER','LOCATION'];
-        //     for (label in metalabels) {
-        //       var h6data = document.createElement("h6");
-        //       h6data.innerHTML = metalabels[label] + ": " + data_meta[metalabels[label]];
-        //       app.appendChild(h6data);
-        //     }
-        //   }
+        //function build_meta data
+        function build_meta_data(zip_data) {
+
+          var app = document.querySelector("#score-metadata");
+
+            //first need to remove any data that might be there, and then populate it
+            //get the H6 data associated with the #meta_list
+            var h6data = document.querySelector("#score-metadata > h6");
+            if (h6data !== null) {
+              for (i=0; i<11; i++) {
+                var h6data = document.querySelector("#meta_list > h6");
+                app.removeChild(h6data);
+              }
+            }
+
+
+            //put the metadata into h6 tags
+            var h6data = document.createElement("h6");
+            //city, state, zip on first line
+            h6data.innerHTML = zip_data[4]['city'] + ", " + zip_data[4]['state'] + " " +zip_data[4]['zip_code'];
+            app.appendChild(h6data);
+            var h6data = document.createElement("h6");
+            h6data.innerHTML = 'Avg Home Value: $' +  zip_data[4]['recent_sale'].toLocaleString();
+            app.appendChild(h6data);
+            var h6data = document.createElement("h6");
+            h6data.innerHTML = 'Avg Rent: $' +  zip_data[4]['recent_rent'].toLocaleString();
+            app.appendChild(h6data);
+            var h6data = document.createElement("h6");
+            h6data.innerHTML = 'Avg Winter Temp (\xB0F): ' +  zip_data[0]['avg_jan'];
+            app.appendChild(h6data);
+            var h6data = document.createElement("h6");
+            h6data.innerHTML = 'Avg Summer Temp (\xB0F): ' +  zip_data[0]['avg_jul'];
+            app.appendChild(h6data);
+            var h6data = document.createElement("h6");
+            h6data.innerHTML = 'Schools: Public: ' +  zip_data[0]['public_school'] + ", Private: " + zip_data[0]['private_school'] + zip_data[0]['catholic_school'];
+            app.appendChild(h6data);
+            var h6data = document.createElement("h6");
+            h6data.innerHTML = 'Crime Rate: ' +  zip_data[0]['crime'];
+            app.appendChild(h6data);
+            var h6data = document.createElement("h6");
+            h6data.innerHTML = 'Sales Tax: ' +  zip_data[0]['sales_tax'] + "%";
+            app.appendChild(h6data);
+            var h6data = document.createElement("h6");
+            h6data.innerHTML = 'Market Health Index: ' +  zip_data[0]['market_health_index'] + " (0-10)";
+            app.appendChild(h6data);
+            var h6data = document.createElement("h6");
+            h6data.innerHTML = 'Walkability: ' +  zip_data[0]['walk_description'];
+            app.appendChild(h6data);
+            var h6data = document.createElement("h6");
+
+            //NEED TO FIX pop_growth once it exists
+            h6data.innerHTML = 'Population Growth: ' +  zip_data[3]['pop_growth']+ "%";
+            app.appendChild(h6data);
+          }
 
 
 
 
-  //get all the initial data, using the default sample id
+
+
+
+  //get all the initial data
   function getData(zip) {
 
       console.log("running getData for:" + zip);
-      //prev had call to REdata
 
+      // TEMPorary
+      //get RE the data and build the display of the metadata and score
+      // Plotly.d3.json("/REdata/"+zip, function(error, zip_data){
+      //     build_real_estate_graph(zip_data[0]);
+      // })
 
       //get ALL the data and build the display of the metadata and score
       Plotly.d3.json("/alldata/"+zip, function(error, zip_data){
           if (error) return console.warn(error);
-          //build_meta_data(zip_data, zip);
-          build_real_estate_graph(zip_data['homes']);
+          build_meta_data(zip_data);
+          build_real_estate_graph(zip_data[3]);
           build_gauge_chart(zip_data);
       })
-      //build_gauge_chart(zip);
+
 
 
   }
