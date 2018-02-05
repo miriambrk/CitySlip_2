@@ -81,46 +81,46 @@ import os
 
 #---------------------------------------------------------------#
 # call this function to present a line graph of population change
-def census_plot(pop_est,county_name,state_name):
-    pop_len = len(pop_est['Population'])
-    _2010 = pop_est['Population'][1]
-    _2016 = pop_est['Population'][pop_len -1]
-    pop_growth = 0
-    if _2010 < _2016:
-        #
-        diff_ = (round(((_2016 - _2010)/ _2016) * 100))
-        pop_growth = ((_2016 - _2010)/ _2016)
-        diff_str = "Note:\nIncrease of population by\n" + str(diff_) + "% from 2010 to 2016"
-    elif _2010 > _2016:
-        diff_ = (round(((_2010 - _2016)/ _2010) * 100))
-        diff_str = "Note:\nDecrease of population by\n" + str(diff_) + "% from 2010 to 2016"
-    else:
-        diff_str = "Note:\nPopulation estimated as\nthe same from 2010 to 2016"
-    ax = pop_est.plot(figsize = (8,6),color='blue', legend=False, marker = '*',markersize=15)
-    ax.set_xticklabels(pop_est['Years'], fontsize=13, rotation=45)
-    plt.grid()
-    plt.figtext(0.91,0.45,diff_str,fontsize=12)
-    plt.title("Census Population Estimates (%s County, %s)"%(county_name,state_name), fontsize = 14)
-    plt.ylabel("Population", fontsize=14)
-    plt.savefig("Population_Change_LineGraph.png", bbox_inches='tight')
-    plt.show()
-    return pop_growth
+# def census_plot(pop_est,county_name,state_name):
+#     pop_len = len(pop_est['Population'])
+#     _2010 = pop_est['Population'][1]
+#     _2016 = pop_est['Population'][pop_len -1]
+#     pop_growth = 0
+#     if _2010 < _2016:
+#         #
+#         diff_ = (round(((_2016 - _2010)/ _2016) * 100))
+#         pop_growth = ((_2016 - _2010)/ _2016)
+#         diff_str = "Note:\nIncrease of population by\n" + str(diff_) + "% from 2010 to 2016"
+#     elif _2010 > _2016:
+#         diff_ = (round(((_2010 - _2016)/ _2010) * 100))
+#         diff_str = "Note:\nDecrease of population by\n" + str(diff_) + "% from 2010 to 2016"
+#     else:
+#         diff_str = "Note:\nPopulation estimated as\nthe same from 2010 to 2016"
+#     ax = pop_est.plot(figsize = (8,6),color='blue', legend=False, marker = '*',markersize=15)
+#     ax.set_xticklabels(pop_est['Years'], fontsize=13, rotation=45)
+#     plt.grid()
+#     plt.figtext(0.91,0.45,diff_str,fontsize=12)
+#     plt.title("Census Population Estimates (%s County, %s)"%(county_name,state_name), fontsize = 14)
+#     plt.ylabel("Population", fontsize=14)
+#     plt.savefig("Population_Change_LineGraph.png", bbox_inches='tight')
+#     plt.show()
+#     return pop_growth
 
-#---------------------------------------------------------------#
-# Call this function to capture a DF that includes yearly changes in population
-def population_df_generator(pop_est):
-    pop_len = len(pop_est['Population'])
-    pop_diff = [0]
-    pop_diff_prcnt = [0]
-    for x in range(pop_len-1):
-        diff = (pop_est['Population'][x+1] - pop_est['Population'][x])
-        pop_diff.append(diff)
-        diff_prcnt = round(((diff/ pop_est['Population'][x]) * 100),2)
-        pop_diff_prcnt.append(diff_prcnt)
-    census_pop_master_df = pop_est
-    census_pop_master_df['Difference'] = pop_diff
-    census_pop_master_df['Percent Change'] = pop_diff_prcnt
-    return census_pop_master_df
+# #---------------------------------------------------------------#
+# # Call this function to capture a DF that includes yearly changes in population
+# def population_df_generator(pop_est):
+#     pop_len = len(pop_est['Population'])
+#     pop_diff = [0]
+#     pop_diff_prcnt = [0]
+#     for x in range(pop_len-1):
+#         diff = (pop_est['Population'][x+1] - pop_est['Population'][x])
+#         pop_diff.append(diff)
+#         diff_prcnt = round(((diff/ pop_est['Population'][x]) * 100),2)
+#         pop_diff_prcnt.append(diff_prcnt)
+#     census_pop_master_df = pop_est
+#     census_pop_master_df['Difference'] = pop_diff
+#     census_pop_master_df['Percent Change'] = pop_diff_prcnt
+#     return census_pop_master_df
 
 
 ###------------------------------------------###
@@ -152,6 +152,133 @@ def get_market_health_and_extremes(zip, Market_Health, Home_sales, Rentals, sess
     return market_dict
 ### END GET GET MARKET HEALTH
 ###------------------------------------------###
+###------------------------------------------###
+### START GET REAL ESTATE DATA
+def get_real_estate(zip, Home_sales, Rentals, session):
+    sales_sel = [Home_sales.zip_code, Home_sales.city, Home_sales.state, Home_sales.county,
+         Home_sales.s2014_03, Home_sales.s2014_06, Home_sales.s2014_09, Home_sales.s2014_12,
+         Home_sales.s2015_03, Home_sales.s2015_06, Home_sales.s2015_09, Home_sales.s2015_12, 
+         Home_sales.s2016_03, Home_sales.s2016_06, Home_sales.s2016_09, Home_sales.s2016_12,
+         Home_sales.s2017_03, Home_sales.s2017_06, Home_sales.s2017_09,Home_sales.s2017_12]
+    sales_results = session.query(*sales_sel).\
+        filter(Home_sales.zip_code == zip).all()
+    sales_dict = {}
+    for row in sales_results:
+        sales_dict['zip_code'] = row[0]
+        sales_dict['city'] = row[1]
+        sales_dict['state'] = row[2]
+        sales_dict['county'] = row[3]
+        sales_dict['s2014_03'] = row[4]
+        sales_dict['s2014_06'] = row[5]
+        sales_dict['s2014_09'] = row[6]
+        sales_dict['s2014_12'] = row[7]
+        sales_dict['s2015_03'] = row[8]
+        sales_dict['s2015_06'] = row[9]
+        sales_dict['s2015_09'] = row[10]
+        sales_dict['s2015_12'] = row[11]
+        sales_dict['s2016_03'] = row[12]
+        sales_dict['s2016_06'] = row[13]
+        sales_dict['s2016_09'] = row[14]
+        sales_dict['s2016_12'] = row[15]
+        sales_dict['s2017_03'] = row[16]
+        sales_dict['s2017_06'] = row[17]
+        sales_dict['s2017_09'] = row[18]
+        sales_dict['s2017_12'] = row[19]
+    print(sales_dict)
+    print(len(sales_dict))
+    rental_sel = [Rentals.zip_code, Rentals.city, Rentals.state, Rentals.county,
+         Rentals.r2014_03, Rentals.r2014_06, Rentals.r2014_09, Rentals.r2014_12,
+         Rentals.r2015_03, Rentals.r2015_06, Rentals.r2015_09, Rentals.r2015_12, 
+         Rentals.r2016_03, Rentals.r2016_06, Rentals.r2016_09, Rentals.r2016_12, 
+         Rentals.r2017_03, Rentals.r2017_06, Rentals.r2017_09,Rentals.r2017_12]
+    rental_results = session.query(*rental_sel).\
+        filter(Rentals.zip_code == zip).all()
+    rentals_dict = {}
+    print(len(rental_results))
+    for row in rental_results:
+        rentals_dict['zip_code'] = row[0]
+        rentals_dict['city'] = row[1]
+        rentals_dict['state'] = row[2]
+        rentals_dict['county'] = row[3]
+        rentals_dict['r2014_03'] = row[4]
+        rentals_dict['r2014_06'] = row[5]
+        rentals_dict['r2014_09'] = row[6]
+        rentals_dict['r2014_12'] = row[7]
+        rentals_dict['r2015_03'] = row[8]
+        rentals_dict['r2015_06'] = row[9]
+        rentals_dict['r2015_09'] = row[10]
+        rentals_dict['r2015_12'] = row[11]
+        rentals_dict['r2016_03'] = row[12]
+        rentals_dict['r2016_06'] = row[13]
+        rentals_dict['r2016_09'] = row[14]
+        rentals_dict['r2016_12'] = row[15]
+        rentals_dict['r2017_03'] = row[16]
+        rentals_dict['r2017_06'] = row[17]
+        rentals_dict['r2017_09'] = row[18]
+        rentals_dict['r2017_12'] = row[19]
+
+    return rentals_dict, sales_dict
+### END GET REAL ESTATE DATA
+###------------------------------------------###
+
+###------------------------------------------###
+### START GET CENSUS DATA
+# takes in a zip which is converted to lat/long for census block query to return a County
+# census popuations are pulled by country from 2010 through 2016
+# each year holds a result along with a column for the proceeding year's difference
+def census_data(zip,zip_latlon, census, session):
+
+    sel = [zip_latlon.zip_code, zip_latlon.lat, zip_latlon.lon]
+    results = session.query(*sel).\
+        filter(zip_latlon.zip_code ==zip)
+    zip_data = {}
+    for result in results:
+        zip_data['ZIP_CODE'] = result[0]
+        zip_data['LAT'] = result[1]
+        zip_data['LON'] = result[2]
+    lat = zip_data['LAT']
+    lng = zip_data['LON']
+
+    cen_block_url = ('http://data.fcc.gov/api/block/find?format=json&latitude=%s&longitude=%s&showall=true' % (lat, lng))
+    lat_lon_county = req.get(cen_block_url).json()
+    county_name = lat_lon_county['County']['name']+ ' County'
+    state_name = lat_lon_county['State']['name']
+    print(state_name)
+    sel = [census.state, census.county, census.pop_2010,census.pop_2011,census.pop_2012,
+    census.pop_2013, census.pop_2014, census.pop_2015,census.pop_2016]
+    county_census_pop = session.query(*sel).\
+        filter(census.county == county_name)
+
+    # Match County and State name to retrieve population information from 2010 through 2016
+    pop_data = {}
+    def diff (col1, col2):
+        d = col2 - col1
+        e = round(((d/col1) * 100), 2)
+        return e
+    for row in county_census_pop:
+        pop_data['STATE'] = row[0]
+        pop_data['COUNTY'] = row[1]
+        pop_data['POPULATION_2010'] = row[2]
+        pop_data['POPULATION_2011'] = row[3]
+        pop_data['POPULATION_2012'] = row[4]
+        pop_data['POPULATION_2013'] = row[5]
+        pop_data['POPULATION_2014'] = row[6]
+        pop_data['POPULATION_2015'] = row[7]
+        pop_data['POPULATION_2016'] = row[8]
+    pop_data['diff_2010_2011'] = diff(pop_data['POPULATION_2010'], pop_data['POPULATION_2011'])
+    pop_data['diff_2011_2012'] = diff(pop_data['POPULATION_2011'], pop_data['POPULATION_2012'])
+    pop_data['diff_2012_2013'] = diff(pop_data['POPULATION_2012'], pop_data['POPULATION_2013'])
+    pop_data['diff_2013_2014'] = diff(pop_data['POPULATION_2013'], pop_data['POPULATION_2014'])
+    pop_data['diff_2014_2015'] = diff(pop_data['POPULATION_2014'], pop_data['POPULATION_2015'])
+    pop_data['diff_2015_2016'] = diff(pop_data['POPULATION_2015'], pop_data['POPULATION_2016'])
+    pop_data['diff_2010_2016'] = diff(pop_data['POPULATION_2010'], pop_data['POPULATION_2016'])
+    return pop_data
+
+### END GET CENSUS DATA
+###------------------------------------------###
+
+###------------------------------------------###
+### START GET WALK DATA
 def get_walk(zip, zip_latlon,session):
     sel = [zip_latlon.zip_code, zip_latlon.lat, zip_latlon.lon]
     results = session.query(*sel).\
@@ -187,8 +314,7 @@ def get_walk(zip, zip_latlon,session):
         "bike_description": bike_description
     }
     return walk_dict
-###------------------------------------------###
-### START GET WALK DATA
+
 
 ### END GET WALK DATA
 ###------------------------------------------###
@@ -289,9 +415,71 @@ def get_schools(zip, zip_latlon, session):
 #---------------------------------------------------------------#
 
 ###------------------------------------------###
+### START GET POIs
+def barfinder(zip, zip_latlon, session):
+    sel = [zip_latlon.zip_code, zip_latlon.lat, zip_latlon.lon]
+    results = session.query(*sel).\
+        filter(zip_latlon.zip_code ==zip)
+    zip_data = {}
+    for result in results:
+        zip_data['ZIP_CODE'] = result[0]
+        zip_data['LAT'] = result[1]
+        zip_data['LON'] = result[2]
+    lat = zip_data['LAT']
+    lng = zip_data['LON']
+    # Google API Key
+    gkey = "AIzaSyC3VaB3zuIfUjWkuK4rkhpBbt8EZCakNO4"
+
+    # types of points of interest we care about
+    target_types = ["liquor_store", "gym", "park", "shopping_mall", "grocery_or_supermarket", "movie_theater"]
+
+    #create a blank dictionary to store results
+    poi_results = {}
+
+    # loop through each target type and gather the number of each nearby
+    for target in target_types:
+
+        # set default values
+        count = 0
+        x = True
+
+        # while loop that uses google radar to gather our numbers
+        while x == True:
+
+            # take in latitude and longitude, set the search radius to 5 miles (8k meters)
+            target_area = {"lat": lat, "lng": lng}
+            target_radius = 8000
+
+            # create the target urls and use requests to gather the necessary data
+            target_url = "https://maps.googleapis.com/maps/api/place/radarsearch/json" \
+                "?types=%s&location=%s,%s&radius=%s&key=%s" % (
+                    target, target_area["lat"], target_area["lng"], target_radius,
+                    gkey)
+
+            places_data = req.get(target_url).json()
+
+            # use the len function to find the count of results
+            numbers = len(places_data["results"])
+
+            # use a series of if statments to check if we returned results. Run a second time if no results showed up as a check
+            if numbers > 0:
+                poi_results[target.replace("_", "").title()] = numbers
+                x = False
+            elif count == 1:
+                x = False
+            else:
+                count += 1
+
+    # return the results
+    return poi_results
+
+### END GET POIs
+###------------------------------------------###
+
+###------------------------------------------###
 ### START GET COMMUNITY DATA FUNCTION
 ### CALLS ONBOARD API FOR: ge demographics / avg Jan and Jun temps / crime rate / sales tax
-def get_community_data(zip, zip_latlon, Market_Health, Home_sales, Rentals, session):
+def get_community_data(zip, census, zip_latlon, Market_Health, Home_sales, Rentals, session):
 
    #Onboard API Key
     onboard_api_key = "e01de281b458feb963cf591ed6355a8d"
@@ -341,76 +529,24 @@ def get_community_data(zip, zip_latlon, Market_Health, Home_sales, Rentals, sess
     school = get_schools(zip, zip_latlon, session)
     market = get_market_health_and_extremes(zip, Market_Health, Home_sales, Rentals, session)
     walk = get_walk(zip, zip_latlon, session)
+    poi_data = barfinder(zip, zip_latlon, session)
+    
     community_dict['private_school'] = school['private_school']
     community_dict['public_school'] = school['public_school']
     community_dict['catholic_school'] = school['catholic_school']
     community_dict['other_school'] = school['other_school']
     community_dict['median_home_value'] = market['median_home_value']
     community_dict['median_rental_price'] = market['median_rental_price']
+    community_dict['market_health_index'] = market['market_health_index']
     community_dict['walk_score'] = walk['walk_score']
     community_dict['walk_description'] = walk['walk_description']
     community_dict['bike_score'] = walk['bike_score']
     community_dict['bike_description'] = walk['bike_description']
+    real_estate = get_real_estate(zip, Home_sales, Rentals, session)
+    census_dict = census_data(zip,zip_latlon, census, session)
     #Community dict used for FLASK app to jsonify
-    return community_dict
+    return [community_dict, poi_data, census_dict, real_estate]
 ### END GET COMMUNITY DATA FUNCTION
 ###------------------------------------------###
 
-
-#---------------------------------------------------------------#
-# Extract age demographics from the 'resp' JSON object
-# Provides a pie chart
-#---------------------------------------------------------------#
-
-####!!!!!!!!!!!!!!!!!!! PROBABLY DON'T NEED THIS ANYMORE !!!!!!!!!!!!!!!
-
-# def age_demographics_zip(resp, target_zip):
-#     resp_keys = list(resp['response'].keys())
-#     if 'result' not in resp_keys: #check if there is data in 'resp'
-#         result = 2
-#         print('No results to graph. This zip code may not be valid.')
-
-#     else: # If there are results in the 'resp'
-#         age_columns = ['age00_04','age05_09','age10_14','age15_19','age20_24','age25_29','age30_34','age35_39','age40_44',
-#                     'age45_49','age50_54','age55_59','age60_64','age65_69','age70_74','age75_79','age80_84','agegt85']
-#         labels = []
-#         age_groups = []
-#         age_group_values = []
-#         county_name = resp['response']['result']['package']['item'][0]['countyname']
-#         for x in age_columns:
-#             group_name = x
-#             age_groups.append(x)
-#             route = resp['response']['result']['package']['item'][0][x]
-#             age_group_values.append(int(route))
-#             label = x.replace('age','').replace('_','-').replace('gt85',' >=85') #format labels
-#             labels.append(label)
-
-#         # Create DF with summarized age groups
-#         age_by_zip = {"Groups": age_groups, "Count": age_group_values}
-#         age_by_zip_df = pd.DataFrame(age_by_zip)
-#         _0_09 = age_by_zip_df[0:2]['Count'].sum()
-#         _10_19 = age_by_zip_df[2:4]['Count'].sum()
-#         _20_29 = age_by_zip_df[4:6]['Count'].sum()
-#         _30_39 = age_by_zip_df[6:8]['Count'].sum()
-#         _40_49 = age_by_zip_df[8:10]['Count'].sum()
-#         _50_59 = age_by_zip_df[10:12]['Count'].sum()
-#         _60_69 = age_by_zip_df[12:14]['Count'].sum()
-#         _70_plus = age_by_zip_df[14:18]['Count'].sum()
-#         grp_sum_lables = ['1-9','10-19','20-29','30-39','40-49','50-59','60-69','>= 70']
-#         grp_sums = [_0_09,_10_19,_20_29,_30_39,_40_49,_50_59,_60_69,_70_plus]
-#         grp_dict = {'Groups':grp_sum_lables,'Count':grp_sums}
-#         grouped_age_df = pd.DataFrame(grp_dict)
-#         # Determine max value amongst age groups and set this to explode in pie chart
-#         max_age = grouped_age_df['Count'].idxmax(axis=0, skipna=True)
-#         explode_params = [0,0,0,0,0,0,0,0,]
-#         explode_params[max_age] = 0.2
-#         # Plot pie chart
-#         fig = plt.figure(figsize = [10,10])
-#         plt.pie(grouped_age_df['Count'], shadow=True, startangle=140,explode = explode_params,
-#                 textprops={"fontsize": 12},labels = grouped_age_df['Groups'],autopct="%1.1f%%", pctdistance = .65)
-#         plt.title("Age Groups for zip code %s\nin %s" %(target_zip,county_name))
-#         plt.savefig("Age_Demographics_PieChart.png", bbox_inches='tight')
-#         plt.show()
-
-#         return county_name
 

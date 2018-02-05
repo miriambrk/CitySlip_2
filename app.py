@@ -78,7 +78,7 @@ def markethealth(zip):
     return(jsonify(market_dict))
 ###### NEW #################
 
-
+# EXAMPLE URL:  /POIdata?lat=38.83&lng=-76.52
 #return all POIs for a specific lat/long
 @app.route("/POIdata", methods=['get'])
 def poi():
@@ -114,7 +114,7 @@ def cen():
     lat = request.args.get("lat", None)
     lng = request.args.get("lng", None)
     return census_data(lat,lng)
-def census_data(lat, lng):
+def census_data(lat, lng, census, session):
     # populations = kris.cen_block_query(lat,lng)
     # return (jsonify(populations))
 
@@ -147,7 +147,7 @@ def census_data(lat, lng):
 @app.route("/community/<zip>")
 def community(zip):
     # community_all = kris.get_community_data(zip, zip_latlon, session)
-    return(jsonify(kris.get_community_data(zip, zip_latlon, Market_Health, Home_sales, Rentals, session)))
+    return(jsonify(kris.get_community_data(zip, census, zip_latlon, Market_Health, Home_sales, Rentals, session)))
 
 
 
