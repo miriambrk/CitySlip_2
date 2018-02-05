@@ -204,94 +204,7 @@ var mycolorsgauge = ['rgba(0, 255, 0, .5)',
         //     Plotly.restyle(PIE, "hovertext", [new_top_ten_otu_desc]);
         //
         // }
-var zip_data =
-[
-{
-_0_09: 2955,_10_19: 4514,_20_29: 2361,_30_39: 2059,_40_49: 3529,_50_59: 4708,_60_69: 3659,_70_plus: 2858,
-avg_jan: "34.00",
-avg_jul: "77.60",
-bike_description: "",
-bike_score: 0,
-catholic_school: 7,
-crime: "34",
-market_health_index: 1.9001585980000002,
-median_home_value: 184200,
-median_rental_price: 1338,
-other_school: 0,
-pop_growth: 0,
-private_school: 33,
-public_school: 67,
-sales_tax: "6.00",
-score: 0.6762022855273133,
-walk_description: "Very Walkable",
-walk_score: 74
-},
-{
-Groceryorsupermarket: 27,Gym: 141,Liquorstore: 37,Movietheater: 7,Park: 126,Shoppingmall: 75
-},
-{
-COUNTY: "Fairfax County",POPULATION_2010: 1086767,POPULATION_2011: 1105410,POPULATION_2012: 1120382,
-POPULATION_2013: 1132543,POPULATION_2014: 1135388,POPULATION_2015: 1137472,POPULATION_2016: 1138652,
-STATE: "Virginia",
-diff_2010_2011: 1.72,diff_2010_2016: 4.77,diff_2011_2012: 1.35,diff_2012_2013: 1.09,
-diff_2013_2014: 0.25,diff_2014_2015: 0.18,diff_2015_2016: 0.1
-},
-[
-{
-home_value: 797300,period: "2014_03",rental: 3473
-},
-{
-home_value: 800800,period: "2014_06",rental: 3438
-},
-{
-home_value: 792000,period: "2014_09",rental: 3401
-},
-{
-home_value: 795400,period: "2014_12",rental: 3348
-},
-{
-home_value: 801500,period: "2015_03",rental: 3352
-},
-{home_value: 802900,period: "2015_06",rental: 3408
-},
-{
-home_value: 801500,period: "2015_09",rental: 3416
-},
-{
-home_value: 802900,period: "2015_12",rental: 3391
-},
-{
-home_value: 808700,period: "2016_03",rental: 3373
-},
-{
-home_value: 812600,period: "2016_06",rental: 3362
-},
-{
-home_value: 817000,period: "2016_09",rental: 3385
-},
-{
-home_value: 834200,period: "2016_12",rental: 3432
-},
-{
-home_value: 831700,period: "2017_03",rental: 3430
-},
-{
-home_value: 812800,period: "2017_06",rental: 3423
-},
-{
-home_value: 812600,period: "2017_09",rental: 3408
-},
-{
-home_value: 806600,period: "2017_12",rental: 3404
-}
-],
-[
-{
-city: "VIENNA",county: "Fairfax",home_value: 806600,
-rental: 3404,state: "VA",zip: "22182"
-}
-]
-]
+
 
 
         //function to create the gauge chart (level is the score, 1-100)
@@ -401,21 +314,19 @@ rental: 3404,state: "VA",zip: "22182"
             h6data.innerHTML = 'Schools: Public: ' +  zip_data[0]['public_school'] + ", Private: " + zip_data[0]['private_school'] + zip_data[0]['catholic_school'];
             app.appendChild(h6data);
             var h6data = document.createElement("h6");
-            h6data.innerHTML = 'Crime Rate: ' +  zip_data[0]['crime'];
+            h6data.innerHTML = 'Crime Risk: ' +  zip_data[0]['crime'] + " (median=100)";
             app.appendChild(h6data);
             var h6data = document.createElement("h6");
             h6data.innerHTML = 'Sales Tax: ' +  zip_data[0]['sales_tax'] + "%";
             app.appendChild(h6data);
             var h6data = document.createElement("h6");
-            h6data.innerHTML = 'Market Health Index: ' +  zip_data[0]['market_health_index'] + " (0-10)";
+            h6data.innerHTML = 'Market Health Index: ' +  zip_data[0]['market_health_index'].toPrecision(2) + " (0-10)";
             app.appendChild(h6data);
             var h6data = document.createElement("h6");
             h6data.innerHTML = 'Walkability: ' +  zip_data[0]['walk_description'];
             app.appendChild(h6data);
             var h6data = document.createElement("h6");
-
-            //NEED TO FIX pop_growth once it exists
-            h6data.innerHTML = 'Population Growth: ' +  zip_data[0]['pop_growth']+ "%";
+            h6data.innerHTML = 'Population Growth: ' +  zip_data[2]['diff_2010_2016']+ "%";
             app.appendChild(h6data);
           }
 
@@ -689,9 +600,9 @@ rental: 3404,state: "VA",zip: "22182"
 
   }
 
-  //get all the initial data and build the charts and metadata display
-  //getData(zip);
 
-  build_meta_data(zip_data);
-  build_real_estate_graph(zip_data[3]);
-  build_gauge_chart(zip_data);
+
+
+  // build_meta_data(zip_data);
+  // build_real_estate_graph(zip_data[3]);
+  // build_gauge_chart(zip_data);
