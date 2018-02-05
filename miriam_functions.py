@@ -27,8 +27,13 @@ def get_real_estate_data(zip_code, Home_sales, Rentals,session):
 
     print("get real estate data zip: " + str(zip_code))
 
-    #first get the city, state from zipcodes functions
-    zip_data = zipcodes.matching(str(zip_code))
+    #first get the city, state from zipcodes functions; if zipcode is < 10000, then add the leading 0
+    if zip_code < 10000:
+        zip_str = "0"+str(zip_code)
+    else:
+        zip_str = str(zip_code)
+
+    zip_data = zipcodes.matching(zip_str)
     city = zip_data[0]['city']
     state = zip_data[0]['state']
 
@@ -53,7 +58,7 @@ def get_real_estate_data(zip_code, Home_sales, Rentals,session):
 
 
         #find nearby zip codes
-        z = find_near_zips(str(zip_code), city, state)
+        z = find_near_zips(zip_str, city, state)
         print(z)
         p = {}
         for q in z:
@@ -91,7 +96,7 @@ def get_real_estate_data(zip_code, Home_sales, Rentals,session):
     else:
 
         print(" no rentals found; looking for other zips")
-        z = find_near_zips(str(zip_code), city.upper(), state)
+        z = find_near_zips(str(zip_str), city.upper(), state)
         p = {}
         for q in z:
             q = int(q)
@@ -155,7 +160,8 @@ def get_real_estate_data(zip_code, Home_sales, Rentals,session):
     #create dict/list for the rest of the data
     re_dict = []
     row = {}
-    row["zip"] = zip_code
+    #need to store the zip as a string to include leading 0 (set above)
+    row["zip"] = zip_str
     row["city"] = city
     row["state"] = state
     row["county"] = county
