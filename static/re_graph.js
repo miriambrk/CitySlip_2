@@ -1,5 +1,10 @@
 function build_real_estate_graph(REdata) {
 
+
+  //first remove a previously-rendered svg
+  d3.select("svg").remove();
+
+
   var svgWidth = 600;
   var svgHeight = 500;
 
@@ -11,7 +16,7 @@ function build_real_estate_graph(REdata) {
   var yMin;
 
 
-  // Create a function to parse date (YYYY-MM)
+  // Create a function to parse date (YYYY-MM) because this will be a time-sequenced graph
   var parseTime = d3.timeParse("%Y_%m");
   // Format the data
   REdata.forEach(function(data) {
@@ -63,14 +68,10 @@ function build_real_estate_graph(REdata) {
   var yLinearScale = d3.scaleLinear()
     .range([height, 0]);
 
-  // var xLinearScale = d3.scaleLinear()
-  //   .range([0, width]);
-
   // Create axis functions
-  //var bottomAxis = d3.axisBottom(xLinearScale);
   var bottomAxis = d3.axisBottom(xTimeScale)
     // Specify the number of tick marks (approximately).
-    .ticks(15);
+    .ticks(16);
   var leftAxis = d3.axisLeft(yLinearScale);
 
   // Scale the domain
@@ -95,7 +96,6 @@ function build_real_estate_graph(REdata) {
 
       var formatPeriod = d3.timeFormat("%Y-%m");
       xString = formatPeriod(data.period);
-
       return (xString + ": $" + yString);
     });
 
@@ -107,7 +107,6 @@ function build_real_estate_graph(REdata) {
     .enter()
       .append("circle")
       .attr("cx", function(data, index) {
-        //return xLinearScale(+data[currentAxisLabelX]);
         return xTimeScale(data[currentAxisLabelX]);
       })
       .attr("cy", function(data, index) {
@@ -170,22 +169,18 @@ function build_real_estate_graph(REdata) {
     .attr("class", "axis-text x-selected")
     //default
     .attr("data-axis-name", "period")
-    .text("Period")
+    .text("Home Sales and Rents - 2014-2017")
 
 
   //handle the axis change
   function labelChange(clickedAxis) {
-    d3
-      .selectAll(".axis-text")
+    d3.selectAll(".axis-text")
       .filter(".active")
       // An alternative to .attr("class", <className>) method. Used to toggle classes.
       .classed("active", false)
       .classed("inactive", true);
     clickedAxis.classed("inactive", false).classed("active", true);
   }
-
-
-
 
     //CLICKED Y AXIS!!!
     d3.selectAll(".axis-text").on("click", function() {
@@ -197,11 +192,11 @@ function build_real_estate_graph(REdata) {
 
       // Grab the data-attribute of the axis and assign it to a variable
       var clickedAxis = clickedSelection.attr("data-axis-name");
-      
-      // The onclick events below take place only if the x-axis is inactive
+
+      // The onclick events below take place only if the axis is inactive
       // Clicking on an already active axis will therefore do nothing
       if (isClickedSelectionInactive) {
-        // Assign the clicked axis to the variable currentAxisLabelX
+        // Assign the clicked axis to the variable currentAxisLabelY
         currentAxisLabelY = clickedAxis;
 
         //find min and max domain values
