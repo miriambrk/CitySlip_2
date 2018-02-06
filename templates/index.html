@@ -17,7 +17,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.2/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.0.2/dist/leaflet.js"></script>
   </head>
-  <body>
+  <body onload="runDef();">
     <div class = "container-fluid" id="cont1">
       <nav class="navbar fixed-top navbar-expand-lg navbar-dark" style="background-color: #219B9D;">
           <a class="navbar-brand" href="">CitySlip</a>
@@ -100,6 +100,7 @@
         </div>
     </div>
     <script type="text/javascript" src="{{ url_for('static', filename='plotbuilder.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='runDefault.js') }}"></script>
     <!--<script type="text/javascript" src="{{ url_for('static', filename='miriam.js') }}"></script>-->
     <script type="text/javascript" src="{{ url_for('static', filename='re_graph.js') }}"></script>
     <!--<script type="text/javascript" src="{{ url_for('static', filename='census_plot.js') }}"></script>-->
