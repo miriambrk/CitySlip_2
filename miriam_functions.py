@@ -18,20 +18,17 @@ from sqlalchemy import create_engine, func
 from sqlalchemy import Column, Integer, String, Float, Text
 
 #PROJ2: Get the home sales and rentals from the sqlite database
-def get_real_estate_data(zip_code, Home_sales, Rentals,session):
+# note: zip_str is a string, not an integer
+def get_real_estate_data(zip_str, Home_sales, Rentals,session):
     rentals = [[]]
     home_values = [[]]
     county = ""
     found = 3
 
 
-    print("get real estate data zip: " + str(zip_code))
-
-    #first get the city, state from zipcodes functions; if zipcode is < 10000, then add the leading 0
-    if zip_code < 10000:
-        zip_str = "0"+str(zip_code)
-    else:
-        zip_str = str(zip_code)
+    print("get real estate data zip: " + zip_str)
+    #need zip_code to be an int for the database queries
+    zip_code = int(zip_str)
 
     zip_data = zipcodes.matching(zip_str)
     city = zip_data[0]['city']
