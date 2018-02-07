@@ -12,10 +12,21 @@ d3.select("#zip_button")
 function checkzip(code) {
     Plotly.d3.json("/zip_latlng/" + code, function(errr, data){
       // fixes zip codes that lead with 0  
-      if (code < 10000){
-          code = "0" + code;
-        }
-        console.log(code)
+      if (code < 10){
+          code = "0000" + code;
+      }
+      else if (code < 100){
+        code = "000" + code;
+      }
+      else if (code < 1000){
+        code = "00" + code;
+      }
+      else if (code < 10000){
+        code = "0" + code;
+      }
+        
+      console.log(code)
+      
         if (Object.keys(data).length < 3){
             console.log("empty")
             var zipCode = prompt("Sorry, there is no data for that zipcode, please enter another");
