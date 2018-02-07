@@ -11,7 +11,11 @@ d3.select("#zip_button")
 // return lat/lon/city/county to the other functions when zip code is valid
 function checkzip(code) {
     Plotly.d3.json("/zip_latlng/" + code, function(errr, data){
-
+      // fixes zip codes that lead with 0  
+      if (code < 10000){
+          code = "0" + code;
+        }
+        console.log(code)
         if (Object.keys(data).length < 3){
             console.log("empty")
             var zipCode = prompt("Sorry, there is no data for that zipcode, please enter another");
