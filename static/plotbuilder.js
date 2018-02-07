@@ -580,6 +580,8 @@ function census_county_pop (data) {
   var d = [trace];
   Plotly.newPlot('population', d, layout);};
 
+
+
   function build_meta_data(zip_data) {
 
     var app = document.querySelector("#score-metadata");

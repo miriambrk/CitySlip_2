@@ -15,115 +15,6 @@ from miriam_functions import get_real_estate_data
 
 
 
-
-# engine = create_engine("sqlite:///city_input.sqlite")
-# Base = automap_base()
-# # reflect an existing database into a new model
-# Base.prepare(engine, reflect=True)
-# session = Session(engine)
-
-# Base.classes.keys()
-
-# Create session (link) from Python to the DB
-
-
-
-
-#---------------------------------------------------------------#
-
-# Function requires a latitude and longitude value
-# Call this function to generate census population data for 2010 - 2016
-# def cen_block_query(lat,lng):
-#     import sqlalchemy
-#     from sqlalchemy.ext.automap import automap_base
-#     from sqlalchemy.orm import Session
-#     from sqlalchemy import create_engine, func
-#     engine = create_engine("sqlite:///city_input.sqlite")
-#     Base = automap_base()
-# # reflect an existing database into a new model
-#     Base.prepare(engine, reflect=True)
-#     session = Session(engine)
-#     census = Base.classes.census_pop
-#     # Queries Census for county/State associated to Lat/Long
-#     # API Info (No Key Required):  https://www.fcc.gov/general/census-block-conversions-api
-#     cen_block_url = ('http://data.fcc.gov/api/block/find?format=json&latitude=%s&longitude=%s&showall=true' % (lat, lng))
-#     lat_lon_county = req.get(cen_block_url).json()
-#     county_name = lat_lon_county['County']['name']
-#     state_name = lat_lon_county['State']['name']
-#     sel = [census.state, census.county, census.pop_2010,census.pop_2011,census.pop_2012,
-#     census.pop_2013, census.pop_2014, census.pop_2015,census.pop_2016]
-#     county_census_pop = session.query(*sel).\
-#         filter(census.county == county_name).\
-#         filter(census.state == state_name)
-#     # Match County and State name to retrieve population information from 2010 through 2016
-#     pop_data = {}
-#     for row in county_census_pop:
-#         pop_data['STATE'] = result[3]
-#         pop_data['COUNTY'] = result[4]
-#     # pops = []
-#     # for row in county_census_pop:
-#     #     if str.lower(county_name) in row['county'] and row['state'] == str.lower(state_name):
-#     #         pops.append(int(row[2]))
-#     #         pops.append(int(row[3]))
-#     #         pops.append(int(row[4]))
-#     #         pops.append(int(row[5]))
-#     #         pops.append(int(row[6]))
-#     #         pops.append(int(row[7]))
-#     #         pops.append(int(row[8]))
-#     #     else:
-#     #         next
-
-#     # years = ['2010','2011','2012','2013','2014','2015','2016']
-#     # pop_dict = {'Years': years, 'Population': pops}
-#     # # Return a dataframe with population value for each year
-#     # pop_est = pd.DataFrame(pop_dict)
-#     return pop_data
-#     # , county_name, state_name
-
-#---------------------------------------------------------------#
-# call this function to present a line graph of population change
-# def census_plot(pop_est,county_name,state_name):
-#     pop_len = len(pop_est['Population'])
-#     _2010 = pop_est['Population'][1]
-#     _2016 = pop_est['Population'][pop_len -1]
-#     pop_growth = 0
-#     if _2010 < _2016:
-#         #
-#         diff_ = (round(((_2016 - _2010)/ _2016) * 100))
-#         pop_growth = ((_2016 - _2010)/ _2016)
-#         diff_str = "Note:\nIncrease of population by\n" + str(diff_) + "% from 2010 to 2016"
-#     elif _2010 > _2016:
-#         diff_ = (round(((_2010 - _2016)/ _2010) * 100))
-#         diff_str = "Note:\nDecrease of population by\n" + str(diff_) + "% from 2010 to 2016"
-#     else:
-#         diff_str = "Note:\nPopulation estimated as\nthe same from 2010 to 2016"
-#     ax = pop_est.plot(figsize = (8,6),color='blue', legend=False, marker = '*',markersize=15)
-#     ax.set_xticklabels(pop_est['Years'], fontsize=13, rotation=45)
-#     plt.grid()
-#     plt.figtext(0.91,0.45,diff_str,fontsize=12)
-#     plt.title("Census Population Estimates (%s County, %s)"%(county_name,state_name), fontsize = 14)
-#     plt.ylabel("Population", fontsize=14)
-#     plt.savefig("Population_Change_LineGraph.png", bbox_inches='tight')
-#     plt.show()
-#     return pop_growth
-
-# #---------------------------------------------------------------#
-# # Call this function to capture a DF that includes yearly changes in population
-# def population_df_generator(pop_est):
-#     pop_len = len(pop_est['Population'])
-#     pop_diff = [0]
-#     pop_diff_prcnt = [0]
-#     for x in range(pop_len-1):
-#         diff = (pop_est['Population'][x+1] - pop_est['Population'][x])
-#         pop_diff.append(diff)
-#         diff_prcnt = round(((diff/ pop_est['Population'][x]) * 100),2)
-#         pop_diff_prcnt.append(diff_prcnt)
-#     census_pop_master_df = pop_est
-#     census_pop_master_df['Difference'] = pop_diff
-#     census_pop_master_df['Percent Change'] = pop_diff_prcnt
-#     return census_pop_master_df
-
-
 ###------------------------------------------###
 ### START GET MARKET HEALTH
 def get_market_health_and_extremes(zip, Market_Health, Home_sales, Rentals, session):
@@ -251,6 +142,7 @@ def get_walk(zip, zip_latlon,session):
 
 ### END GET WALK DATA
 ###------------------------------------------###
+
 ###------------------------------------------###
 ### START GET SCHOOLS FUNCTION
 ### CALLS ONBOARD API FOR RADIUS OF 5 MILES TO GATHER SCHOOLS IN THE AREA

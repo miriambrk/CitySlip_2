@@ -4,11 +4,9 @@ import sqlalchemy
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
 from sqlalchemy import create_engine, func
-
-#Kris Note: adding these for testing
-import kris_functions as kris
 import requests as req
 import json
+from census_funcs import get_community_data 
 from nathan_functions import barfinder
 from miriam_functions import get_real_estate_data, compute_score
 
@@ -114,8 +112,6 @@ def cen():
     lng = request.args.get("lng", None)
     return census_data(lat,lng)
 def census_data(lat, lng, census, session):
-    # populations = kris.cen_block_query(lat,lng)
-    # return (jsonify(populations))
 
     cen_block_url = ('http://data.fcc.gov/api/block/find?format=json&latitude=%s&longitude=%s&showall=true' % (lat, lng))
     lat_lon_county = req.get(cen_block_url).json()
@@ -145,8 +141,7 @@ def census_data(lat, lng, census, session):
 #EXAMPLE URL:  /community/20764
 @app.route("/community/<zip>")
 def community(zip):
-    # community_all = kris.get_community_data(zip, zip_latlon, session)
-    return(jsonify(kris.get_community_data(zip, census, zip_latlon, Market_Health, Home_sales, Rentals, session)))
+    return(jsonify(get_community_data(zip, census, zip_latlon, Market_Health, Home_sales, Rentals, session)))
 
 
 
@@ -156,7 +151,7 @@ def get_alldata(zip):
     print("ALLDATA: " + str(zip))
 
     #get all the community and real estate data used to compute the score
-    community_dict, poi_data, census_dict, REdata, re_dict = kris.get_community_data(zip, census, zip_latlon, Market_Health, Home_sales, Rentals, session)
+    community_dict, poi_data, census_dict, REdata, re_dict = get_community_data(zip, census, zip_latlon, Market_Health, Home_sales, Rentals, session)
 
 
     #compute the score and store in community_dict

@@ -167,6 +167,7 @@ function checkZipDef(code, zipData) {
           build_gauge_chartDef(zipData);
           build_real_estate_graphDef(zipData[3]);
           build_meta_dataDef(zipData);
+          change_header(zip_data[4][0]['zip'])
         }   
     
 })};
