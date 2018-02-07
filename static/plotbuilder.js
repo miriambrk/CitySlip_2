@@ -463,7 +463,15 @@ function build_real_estate_graph(REdata) {
     .attr("class", "axis-text x-selected")
     //default
     .attr("data-axis-name", "period")
-    .text("Home Sales and Rents - 2014-2017")
+    .text("Month")
+
+  //add a title to the chart
+  chart.append("text")
+    .attr("x", (width / 2))
+    .attr("y", 0 - (margin.top / 2) +10)
+    .attr("text-anchor", "middle")
+    .style("font-size", "18px")
+    .text("Home Sales and Rents - 2014-2017");
 
 
   //handle the axis change
