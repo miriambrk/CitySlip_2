@@ -11,7 +11,7 @@ d3.select("#zip_button")
 // return lat/lon/city/county to the other functions when zip code is valid
 function checkzip(code) {
     Plotly.d3.json("/zip_latlng/" + code, function(errr, data){
-        
+
         if (Object.keys(data).length < 3){
             console.log("empty")
             var zipCode = prompt("Sorry, there is no data for that zipcode, please enter another");
@@ -26,16 +26,16 @@ function checkzip(code) {
                 census_county_pop(allData[2]);
                 build_meta_data(allData);
             })
-                
-        }   
-    
+
+        }
+
 })};
 
 function zipMap(lat, lng, z_info){
-  
+
   // change the map view to the new zip code
   myMap.panTo(new L.LatLng(lat, lng));
-  
+
   // add marker for new zipcode
   var marker = L.marker([lat, lng], {
       draggable: true
@@ -44,9 +44,9 @@ function zipMap(lat, lng, z_info){
 };
 
 
-// POI pie plot taking lat/lng from checkzip funciton
+// POI pie plot taking lat/lng from checkzip function
 function poi_pie(data, zip){
-    
+
         // create the total number of places of interest and the percentages, place in pie values list
         console.log(data)
         var poi_total = data.Liquorstore + data.Gym + data.Park + data.Shoppingmall + data.Groceryorsupermarket + data.Movietheater;
@@ -81,7 +81,7 @@ function poi_pie(data, zip){
         //     hoverinfo: "text",
         //     hovertext: poi_desc
         // }];
-        
+
         // // create the layout of the chart
         // var layout = {
         //     height: 400,
@@ -92,18 +92,18 @@ function poi_pie(data, zip){
         // };
 
         var new_title = 'Points of Interest';
-        
+
         // plot the chart
-        Plotly.restyle('POI-pie', "values", [pie_values]); 
+        Plotly.restyle('POI-pie', "values", [pie_values]);
         Plotly.restyle('POI-pie', "labels", [pie_labels]);
         Plotly.restyle('POI-pie', "hovertext", [poi_desc]);
         Plotly.relayout('POI-pie', "title", new_title);
-        
+
 };
 
 function age_pie(data, zip, lat, lng, zip_info){
     // call the route with the POI data
-    
+
         // create the total number of places of interest and the percentages, place in pie values list
         console.log(data)
         var age_total = data._0_09 + data._10_19 + data._20_29 + data._30_39 + data._40_49 + data._50_59 + data._60_69 + data._70_plus;
@@ -141,7 +141,7 @@ function age_pie(data, zip, lat, lng, zip_info){
         //     hoverinfo: "text",
         //     hovertext: age_desc
         // }];
-        
+
         // // create the layout of the chart
         // var layout = {
         //     height: 400,
@@ -150,11 +150,11 @@ function age_pie(data, zip, lat, lng, zip_info){
         //     plot_bgcolor:'rgba(0,0,0,0)',
         //     title: 'Age Demographics for '+zip,
         // };
-        
+
         var new_title_age = 'Age Demographics';
-        
+
         // plot the chart
-        Plotly.restyle('age-pie', "values", [pie_values]); 
+        Plotly.restyle('age-pie', "values", [pie_values]);
         Plotly.restyle('age-pie', "labels", [pie_labels]);
         Plotly.restyle('age-pie', "hovertext", [age_desc]);
         Plotly.relayout('age-pie', "title", new_title_age);
@@ -298,8 +298,9 @@ function build_real_estate_graph(REdata) {
   // This variable is key to the ability to change axis/data column
   var currentAxisLabelX = "period";
   var currentAxisLabelY = "home_value";
+  var otherAxisLabelY = "rental";
 
-  // Call findMinAndMax() with defaults
+  // Call findMinAndMax() with default Y label
   findMinAndMax(currentAxisLabelY);
 
   var xTimeScale = d3.scaleTime()
@@ -308,10 +309,10 @@ function build_real_estate_graph(REdata) {
   var x = d3.scaleTime()
       .range([0, width]);
 
-  // Create scale functions
+  // Create scale functions for each Y axis
   var yLinearScale = d3.scaleLinear()
     .range([height, 0]);
-  var y = d3.scaleLinear()
+  var yLinearScale2 = d3.scaleLinear()
       .range([height, 0]);
 
 
@@ -329,7 +330,7 @@ function build_real_estate_graph(REdata) {
           return xTimeScale(data.period);
         })
         .y(function(data) {
-          return yLinearScale(data.rental);
+          return yLinearScale2(data.rental);
         });
 
   // Create axis functions
@@ -346,14 +347,10 @@ function build_real_estate_graph(REdata) {
   }));
   yLinearScale.domain([yMin, yMax]);
 
+  findMinAndMax(otherAxisLabelY);
+  yLinearScale2.domain([yMin, yMax]);
+
   // Add the line paths.
-  // Add the line paths.
-  chart.append("path")
-      .data([REdata])
-      .attr("class", "line green")
-      .attr("id","rentline")
-      .style("stroke-opacity", 0)
-      .attr("d", line2);
   chart.append("path")
       .data([REdata])
       .attr("class", "line blue")
@@ -361,6 +358,12 @@ function build_real_estate_graph(REdata) {
       .style("stroke-opacity", 0.8)
       .attr("d", line1);
 
+  chart.append("path")
+      .data([REdata])
+      .attr("class", "line green")
+      .attr("id","rentline")
+      .style("stroke-opacity", 0)
+      .attr("d", line2);
 
   //add the tool tip
   var toolTip = d3.tip()
@@ -370,7 +373,6 @@ function build_real_estate_graph(REdata) {
 
       if (currentAxisLabelY === "home_value") {
         var yVal = data.home_value;
-        // //////////////////////////////////d3.format('$,')
       }
       else {
         var yVal = data.rental;
@@ -398,7 +400,6 @@ function build_real_estate_graph(REdata) {
       })
       .attr("r", "5")
       .attr("stroke","black")
-      //*************************ADD FUNCTION TO FILL SO IT WILL BE GREEN FOR RENT
       .attr("fill", "blue")
 
 
@@ -417,7 +418,6 @@ function build_real_estate_graph(REdata) {
     .attr("transform", `translate(0, ${height})`)
     .attr("class","x-axis") //used for transition
     .attr("class","axis")
-    //.call(d3.axisBottom(xTimeScale).ticks(16))
     .call(bottomAxis)
     .selectAll("text")
         .style("text-anchor", "end")
@@ -437,22 +437,22 @@ function build_real_estate_graph(REdata) {
   //x-axis label always selected; y label is selectable (active or inactive)
   chart.append("text")
       .attr("transform", "rotate(-90)")
-      .attr("y", 0 - margin.left + 30)
+      .attr("y", 0 - margin.left + 20)
       .attr("x", 0 - (height / 1.7))  // make 1.5 smaller to get the axis title to move down a bit
       .attr("dy", "1em")
       .attr("class", "axis-text active blue")
       //default
-      .attr("data-axis-name", "home_value")
+      .attr("data-axis-name", currentAxisLabelY)
       .text("Home Prices ($)")
 
   //append the unselected Y labels
   chart.append("text")
       .attr("transform", "rotate(-90)")
-      .attr("y", 0 - margin.left + 10)
+      .attr("y", 0 - margin.left)
       .attr("x", 0 - (height / 1.7))  // make 1.5 smaller to get the axis title to move down a bit
       .attr("dy", "1em")
       .attr("class", "axis-text inactive green")
-      .attr("data-axis-name", "rental")
+      .attr("data-axis-name", otherAxisLabelY)
       .text("Monthly Rent ($)")
 
 
@@ -503,7 +503,7 @@ function build_real_estate_graph(REdata) {
         svg
           .select(".y-axis")
           .transition()
-          .duration(1000)
+          .duration(500)
           .call(leftAxis);
 
         // Select all circles to create a transition effect, then relocate the horizontal and vertical location
@@ -548,7 +548,7 @@ function build_real_estate_graph(REdata) {
     });
 
 }
-  
+
 function census_county_pop (data) {
   var pops = [data.POPULATION_2010, data.POPULATION_2011, data.POPULATION_2012, data.POPULATION_2013, data.POPULATION_2014,
       data.POPULATION_2015, data.POPULATION_2016];
@@ -558,8 +558,8 @@ function census_county_pop (data) {
       pop_desc.push(labels[p] + ": " + pops[p]);
   };
   var trace = {
-      x: labels, 
-      y: pops, 
+      x: labels,
+      y: pops,
       type: 'scatter',
       hoverinfo: "text",
       hovertext: pop_desc
@@ -584,11 +584,11 @@ function census_county_pop (data) {
 
   function build_meta_data(zip_data) {
 
-    var app = document.querySelector("#score-metadata");
-  
+    var app = document.querySelector("#meta_list");
+
       //first need to remove any data that might be there, and then populate it
       //get the H6 data associated with the #meta_list
-      var h6data = document.querySelector("#score-metadata > h6");
+      var h6data = document.querySelector("#meta_list > h6");
       if (h6data !== null) {
         for (i=0; i<11; i++) {
           var h6data = document.querySelector("#meta_list > h6");
@@ -596,7 +596,7 @@ function census_county_pop (data) {
         }
       }
       console.log(zip_data);
-  
+
       //put the metadata into h6 tags
       var h6data = document.createElement("h6");
       //city, state, zip on first line

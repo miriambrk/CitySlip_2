@@ -154,7 +154,7 @@ function runDef(){
 
 function checkZipDef(code, zipData) {
     Plotly.d3.json("/zip_latlng/" + code, function(errr, data){
-        
+
         if (Object.keys(data).length < 3){
             console.log("empty")
             var zipCode = prompt("Sorry, there is no data for that zipcode, please enter another");
@@ -167,15 +167,15 @@ function checkZipDef(code, zipData) {
           build_gauge_chartDef(zipData);
           build_real_estate_graphDef(zipData[3]);
           build_meta_dataDef(zipData);
-          change_header(zip_data[4][0]['zip'])
-        }   
-    
+          change_header(zip_data[4][0]['zip']);
+        }
+
 })};
 
 // create global map variable
 var myMap;
 function zipMapDef(lat, lng, z_info){
-    
+
     // create the initial map
     myMap = L.map('map').setView([lat, lng], 13);
 
@@ -184,7 +184,7 @@ function zipMapDef(lat, lng, z_info){
 
     var marker = L.marker([lat, lng], {
         draggable: true
-    }).bindPopup("Zip Code: " + z_info.zip + "<hr> City: " + z_info.city + "<br> County: " + 
+    }).bindPopup("Zip Code: " + z_info.zip + "<hr> City: " + z_info.city + "<br> County: " +
     z_info.county + "<br>State: " + z_info.state).addTo(myMap);
 };
 
@@ -225,7 +225,7 @@ function poi_pieDef(data, zip){
             hoverinfo: "text",
             hovertext: poi_desc
         }];
-        
+
         // create the layout of the chart
         var layout = {
             height: 400,
@@ -234,15 +234,15 @@ function poi_pieDef(data, zip){
             plot_bgcolor:'rgba(0,0,0,0)',
             title: 'Points of Interest',
         };
-        
+
         // plot the chart
         Plotly.newPlot('POI-pie', piedata, layout);
-        
+
 };
 
 function age_pieDef(data, zip, lat, lng, zip_info){
     // call the route with the POI data
-    
+
         // create the total number of places of interest and the percentages, place in pie values list
         console.log(data)
         var age_total = data._0_09 + data._10_19 + data._20_29 + data._30_39 + data._40_49 + data._50_59 + data._60_69 + data._70_plus;
@@ -280,7 +280,7 @@ function age_pieDef(data, zip, lat, lng, zip_info){
             hoverinfo: "text",
             hovertext: age_desc
         }];
-        
+
         // create the layout of the chart
         var layout = {
             height: 400,
@@ -289,7 +289,7 @@ function age_pieDef(data, zip, lat, lng, zip_info){
             plot_bgcolor:'rgba(0,0,0,0)',
             title: 'Age Demographics',
         };
-        
+
         // plot the chart
         Plotly.newPlot('age-pie', piedata, layout);
         zipMapDef(lat,lng, zip_info)
@@ -306,7 +306,7 @@ var originalWidth = document.getElementById('cont1').clientWidth;
 
 function build_gauge_chartDef(zip_data) {
 
-  
+
     //var level = zip_data[0]['score'] * 100;
     var level = zip_data[0]['score'].toPrecision(2) * 100;
 
@@ -433,20 +433,20 @@ function build_real_estate_graphDef(REdata) {
  // This variable is key to the ability to change axis/data column
  var currentAxisLabelX = "period";
  var currentAxisLabelY = "home_value";
+ var otherAxisLabelY = "rental";
 
- // Call findMinAndMax() with defaults
+ // Call findMinAndMax() with default Y label
  findMinAndMax(currentAxisLabelY);
 
  var xTimeScale = d3.scaleTime()
    .range([0, width]);
-
  var x = d3.scaleTime()
      .range([0, width]);
 
- // Create scale functions
+ // Create scale functions for each Y axis
  var yLinearScale = d3.scaleLinear()
    .range([height, 0]);
- var y = d3.scaleLinear()
+ var yLinearScale2 = d3.scaleLinear()
      .range([height, 0]);
 
 
@@ -464,7 +464,7 @@ function build_real_estate_graphDef(REdata) {
          return xTimeScale(data.period);
        })
        .y(function(data) {
-         return yLinearScale(data.rental);
+         return yLinearScale2(data.rental);
        });
 
  // Create axis functions
@@ -481,20 +481,24 @@ function build_real_estate_graphDef(REdata) {
  }));
  yLinearScale.domain([yMin, yMax]);
 
+ findMinAndMax(otherAxisLabelY);
+ yLinearScale2.domain([yMin, yMax]);
+
  // Add the line paths.
- // Add the line paths.
- chart.append("path")
-     .data([REdata])
-     .attr("class", "line green")
-     .attr("id","rentline")
-     .style("stroke-opacity", 0)
-     .attr("d", line2);
  chart.append("path")
      .data([REdata])
      .attr("class", "line blue")
      .attr("id","homeline")
      .style("stroke-opacity", 0.8)
      .attr("d", line1);
+ // Add the 2nd line
+ chart.append("path")
+     .data([REdata])
+     .attr("class", "line green")
+     .attr("id","rentline")
+     .style("stroke-opacity", 0)
+     .attr("d", line2);
+
 
 
  //add the tool tip
@@ -505,7 +509,6 @@ function build_real_estate_graphDef(REdata) {
 
      if (currentAxisLabelY === "home_value") {
        var yVal = data.home_value;
-       // //////////////////////////////////d3.format('$,')
      }
      else {
        var yVal = data.rental;
@@ -533,7 +536,6 @@ function build_real_estate_graphDef(REdata) {
      })
      .attr("r", "5")
      .attr("stroke","black")
-     //*************************ADD FUNCTION TO FILL SO IT WILL BE GREEN FOR RENT
      .attr("fill", "blue")
 
 
@@ -572,22 +574,22 @@ function build_real_estate_graphDef(REdata) {
  //x-axis label always selected; y label is selectable (active or inactive)
  chart.append("text")
      .attr("transform", "rotate(-90)")
-     .attr("y", 0 - margin.left + 30)
-     .attr("x", 0 - (height / 1.7))  // make 1.5 smaller to get the axis title to move down a bit
+     .attr("y", 0 - margin.left + 20)
+     .attr("x", 0 - (height / 2.1))  // make smaller to get the axis title to move down a bit
      .attr("dy", "1em")
      .attr("class", "axis-text active blue")
      //default
-     .attr("data-axis-name", "home_value")
+     .attr("data-axis-name", currentAxisLabelY)
      .text("Home Prices ($)")
 
  //append the unselected Y labels
  chart.append("text")
      .attr("transform", "rotate(-90)")
-     .attr("y", 0 - margin.left + 10)
-     .attr("x", 0 - (height / 1.7))  // make 1.5 smaller to get the axis title to move down a bit
+     .attr("y", 0 - margin.left)
+     .attr("x", 0 - (height / 2.1))  // make smaller to get the axis title to move down a bit
      .attr("dy", "1em")
      .attr("class", "axis-text inactive green")
-     .attr("data-axis-name", "rental")
+     .attr("data-axis-name", otherAxisLabelY)
      .text("Monthly Rent ($)")
 
 
@@ -638,7 +640,7 @@ function build_real_estate_graphDef(REdata) {
        svg
          .select(".y-axis")
          .transition()
-         .duration(1000)
+         .duration(500)
          .call(leftAxis);
 
        // Select all circles to create a transition effect, then relocate the horizontal and vertical location
@@ -684,7 +686,7 @@ function build_real_estate_graphDef(REdata) {
 
 
 }
-  
+
 function census_county_popDef (data) {
   var pops = [data.POPULATION_2010, data.POPULATION_2011, data.POPULATION_2012, data.POPULATION_2013, data.POPULATION_2014,
       data.POPULATION_2015, data.POPULATION_2016];
@@ -694,8 +696,8 @@ function census_county_popDef (data) {
       pop_desc.push(labels[p] + ": " + pops[p]);
   };
   var trace = {
-      x: labels, 
-      y: pops, 
+      x: labels,
+      y: pops,
       type: 'scatter',
       hoverinfo: "text",
       hovertext: pop_desc
@@ -719,11 +721,11 @@ function census_county_popDef (data) {
 
 function build_meta_dataDef(zip_data) {
 
-  var app = document.querySelector("#score-metadata");
+  var app = document.querySelector("#meta_list");
 
     //first need to remove any data that might be there, and then populate it
     //get the H6 data associated with the #meta_list
-    var h6data = document.querySelector("#score-metadata > h6");
+    var h6data = document.querySelector("#meta_list > h6");
     if (h6data !== null) {
       for (i=0; i<11; i++) {
         var h6data = document.querySelector("#meta_list > h6");
