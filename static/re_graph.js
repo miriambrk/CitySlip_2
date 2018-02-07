@@ -60,20 +60,20 @@ function build_real_estate_graph(REdata) {
   // This variable is key to the ability to change axis/data column
   var currentAxisLabelX = "period";
   var currentAxisLabelY = "home_value";
+  var otherAxisLabelY = "rental";
 
-  // Call findMinAndMax() with defaults
+  // Call findMinAndMax() with default Y label
   findMinAndMax(currentAxisLabelY);
 
   var xTimeScale = d3.scaleTime()
     .range([0, width]);
-
   var x = d3.scaleTime()
       .range([0, width]);
 
-  // Create scale functions
+  // Create scale functions for each Y axis
   var yLinearScale = d3.scaleLinear()
     .range([height, 0]);
-  var y = d3.scaleLinear()
+  var yLinearScale2 = d3.scaleLinear()
       .range([height, 0]);
 
 
@@ -91,7 +91,7 @@ function build_real_estate_graph(REdata) {
           return xTimeScale(data.period);
         })
         .y(function(data) {
-          return yLinearScale(data.rental);
+          return yLinearScale2(data.rental);
         });
 
   // Create axis functions
@@ -108,20 +108,23 @@ function build_real_estate_graph(REdata) {
   }));
   yLinearScale.domain([yMin, yMax]);
 
+  findMinAndMax(otherAxisLabelY);
+  yLinearScale2.domain([yMin, yMax]);
+
   // Add the line paths.
-  // Add the line paths.
-  chart.append("path")
-      .data([REdata])
-      .attr("class", "line green")
-      .attr("id","rentline")
-      .style("stroke-opacity", 0)
-      .attr("d", line2);
   chart.append("path")
       .data([REdata])
       .attr("class", "line blue")
       .attr("id","homeline")
       .style("stroke-opacity", 0.8)
       .attr("d", line1);
+
+  chart.append("path")
+      .data([REdata])
+      .attr("class", "line green")
+      .attr("id","rentline")
+      .style("stroke-opacity", 0)
+      .attr("d", line2);
 
 
   //add the tool tip
@@ -132,7 +135,6 @@ function build_real_estate_graph(REdata) {
 
       if (currentAxisLabelY === "home_value") {
         var yVal = data.home_value;
-        // //////////////////////////////////d3.format('$,')
       }
       else {
         var yVal = data.rental;
@@ -160,9 +162,7 @@ function build_real_estate_graph(REdata) {
       })
       .attr("r", "5")
       .attr("stroke","black")
-      //*************************ADD FUNCTION TO FILL SO IT WILL BE GREEN FOR RENT
       .attr("fill", "blue")
-
 
       //on hover, show the tooltip
       .on("mouseover", function(data) {
@@ -179,7 +179,6 @@ function build_real_estate_graph(REdata) {
     .attr("transform", `translate(0, ${height})`)
     .attr("class","x-axis") //used for transition
     .attr("class","axis")
-    //.call(d3.axisBottom(xTimeScale).ticks(16))
     .call(bottomAxis)
     .selectAll("text")
         .style("text-anchor", "end")
@@ -204,7 +203,7 @@ function build_real_estate_graph(REdata) {
       .attr("dy", "1em")
       .attr("class", "axis-text active blue")
       //default
-      .attr("data-axis-name", "home_value")
+      .attr("data-axis-name", currentAxisLabelY)
       .text("Home Prices ($)")
 
   //append the unselected Y labels
@@ -214,7 +213,7 @@ function build_real_estate_graph(REdata) {
       .attr("x", 0 - (height / 1.7))  // make 1.5 smaller to get the axis title to move down a bit
       .attr("dy", "1em")
       .attr("class", "axis-text inactive green")
-      .attr("data-axis-name", "rental")
+      .attr("data-axis-name", otherAxisLabelY)
       .text("Monthly Rent ($)")
 
 
@@ -265,7 +264,7 @@ function build_real_estate_graph(REdata) {
         svg
           .select(".y-axis")
           .transition()
-          .duration(1000)
+          .duration(800)
           .call(leftAxis);
 
         // Select all circles to create a transition effect, then relocate the horizontal and vertical location
