@@ -308,7 +308,7 @@ function build_gauge_chartDef(zip_data) {
 
 
     //var level = zip_data[0]['score'] * 100;
-    var level = zip_data[0]['score'].toPrecision(2) * 100;
+    var level = (zip_data[0]['score'] * 100).toPrecision(2);
 
     console.log("level score: " + level);
 
@@ -741,6 +741,12 @@ function build_meta_dataDef(zip_data) {
       }
     }
     console.log(zip_data);
+
+    //put the metadata into h6 tags
+    var h6data = document.createElement("h6");
+    //city, state, zip on first line
+    h6data.innerHTML = zip_data[4][0]['city'] + ", " + zip_data[4][0]['state'] + " " +zip_data[4][0]['zip'];
+    app.appendChild(h6data);
 
     var h6data = document.createElement("h6");
     var home_text = 'Avg Home Value: $' +  zip_data[4][0]['home_value'].toLocaleString();

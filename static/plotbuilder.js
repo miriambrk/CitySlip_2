@@ -11,7 +11,7 @@ d3.select("#zip_button")
 // return lat/lon/city/county to the other functions when zip code is valid
 function checkzip(code) {
     Plotly.d3.json("/zip_latlng/" + code, function(errr, data){
-      // fixes zip codes that lead with 0  
+      // fixes zip codes that lead with 0
       if (code < 10){
           code = "0000" + code;
       }
@@ -24,9 +24,9 @@ function checkzip(code) {
       else if (code < 10000){
         code = "0" + code;
       }
-        
+
       console.log(code)
-      
+
         if (Object.keys(data).length < 3){
             console.log("empty")
             var zipCode = prompt("Sorry, there is no data for that zipcode, please enter another");
@@ -188,7 +188,7 @@ var originalWidth = document.getElementById('cont1').clientWidth;
 function build_gauge_chart(zip_data) {
 
   //var level = zip_data[0]['score'] * 100;
-  var level = zip_data[0]['score'].toPrecision(2) * 100;
+  var level = (zip_data[0]['score'] * 100).toPrecision(2);
 
   console.log("level score: " + level);
 
@@ -625,35 +625,54 @@ function census_county_pop (data) {
       //city, state, zip on first line
       h6data.innerHTML = zip_data[4][0]['city'] + ", " + zip_data[4][0]['state'] + " " +zip_data[4][0]['zip'];
       app.appendChild(h6data);
+
       var h6data = document.createElement("h6");
-      console.log(zip_data[4][0]);
-      h6data.innerHTML = 'Avg Home Value: $' +  zip_data[4][0]['home_value'].toLocaleString();
+      var home_text = 'Avg Home Value: $' +  zip_data[4][0]['home_value'].toLocaleString();
+      h6data.innerHTML = "<i class = 'fa fa-home'></i> "+home_text;
       app.appendChild(h6data);
+
       var h6data = document.createElement("h6");
-      h6data.innerHTML = 'Avg Rent: $' +  zip_data[4][0]['rental'].toLocaleString();
+      var home_text = 'Avg Rent: $' +  zip_data[4][0]['rental'].toLocaleString();
+      h6data.innerHTML = "<i class='material-icons' style='font-size:16px'>location_city</i>"+home_text;
       app.appendChild(h6data);
+
       var h6data = document.createElement("h6");
-      h6data.innerHTML = 'Avg Winter Temp (\xB0F): ' +  zip_data[0]['avg_jan'];
+      var home_text = 'Avg Winter Temp: ' +  Math.round(zip_data[0]['avg_jan']) + '\xB0F';
+      h6data.innerHTML = "<i class = 'fa fa-snowflake-o'></i> "+home_text;
       app.appendChild(h6data);
+
       var h6data = document.createElement("h6");
-      h6data.innerHTML = 'Avg Summer Temp (\xB0F): ' +  zip_data[0]['avg_jul'];
+      var home_text = 'Avg Summer Temp: ' +  Math.round(zip_data[0]['avg_jul']) + '\xB0F';
+      h6data.innerHTML = "<i class = 'fa fa-thermometer-full'></i> "+home_text;
       app.appendChild(h6data);
+
       var h6data = document.createElement("h6");
-      h6data.innerHTML = 'Schools: Public: ' +  zip_data[0]['public_school'] + ", Private: " + zip_data[0]['private_school'] + zip_data[0]['catholic_school'];
+      var home_text = 'Schools: Public: ' +  zip_data[0]['public_school'] + ", Private: " + zip_data[0]['private_school'] + zip_data[0]['catholic_school'];
+      h6data.innerHTML = "<i class = 'fa fa-graduation-cap'></i> "+home_text;
       app.appendChild(h6data);
+
       var h6data = document.createElement("h6");
-      h6data.innerHTML = 'Crime Rate: ' +  zip_data[0]['crime'];
+      var home_text = 'Crime Risk: ' +  zip_data[0]['crime'] + " (median=100)";
+      h6data.innerHTML = "<i class='material-icons' style='font-size:16px'>fingerprint</i> "+home_text;
       app.appendChild(h6data);
+
       var h6data = document.createElement("h6");
-      h6data.innerHTML = 'Sales Tax: ' +  zip_data[0]['sales_tax'] + "%";
+      var home_text = 'Sales Tax: ' +  zip_data[0]['sales_tax'] + "%";
+      h6data.innerHTML = "<i class = 'fa fa-usd'></i> "+home_text;
       app.appendChild(h6data);
+
       var h6data = document.createElement("h6");
-      h6data.innerHTML = 'Market Health Index: ' +  zip_data[0]['market_health_index'].toPrecision(2) + " (0-10)";
+      var home_text = 'Market Health Index: ' +  zip_data[0]['market_health_index'].toPrecision(2) + " (0-10)";
+      h6data.innerHTML = "<i class = 'fa fa-line-chart'></i> "+home_text;
       app.appendChild(h6data);
+
       var h6data = document.createElement("h6");
-      h6data.innerHTML = 'Walkability: ' +  zip_data[0]['walk_description'];
+      var home_text = 'Walkability: ' +  zip_data[0]['walk_description'];
+      h6data.innerHTML = "<i class='material-icons' style='font-size:16px'>directions_walk</i>"+home_text;
       app.appendChild(h6data);
+
       var h6data = document.createElement("h6");
-      h6data.innerHTML = 'Population Growth: ' +  zip_data[2]['diff_2010_2016']+ "%";
+      var home_text = 'Population Growth: ' +  zip_data[2]['diff_2010_2016']+ "%";
+      h6data.innerHTML = "<i class = 'fa fa-group'></i> "+home_text;
       app.appendChild(h6data);
     }
