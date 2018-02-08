@@ -65,8 +65,13 @@ def census_data(zip,zip_latlon, census, session):
 
     cen_block_url = ('http://data.fcc.gov/api/block/find?format=json&latitude=%s&longitude=%s&showall=true' % (lat, lng))
     lat_lon_county = req.get(cen_block_url).json()
-    county_name = lat_lon_county['County']['name']+ ' County'
     state_name = lat_lon_county['State']['name']
+    if state_name != 'District of Columbia':
+        county_name = lat_lon_county['County']['name']+ ' County'
+    else:
+        county_name = lat_lon_county['County']['name']
+
+
     print(state_name)
     sel = [census.state, census.county, census.pop_2010,census.pop_2011,census.pop_2012,
     census.pop_2013, census.pop_2014, census.pop_2015,census.pop_2016]
