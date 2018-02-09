@@ -101,6 +101,21 @@ tr:nth-of-type(odd) {
   opacity: 0.3;
 }
 
+.correl::before {
+  position: absolute;
+  top: 50px;
+  left: 300px;
+  z-index: -1;
+  display: block;
+  width: 400px;
+  height: 300px;
+  content: " ";
+  background-repeat: no-repeat;
+  background-position: 50% 0;
+  background-size: cover;
+  opacity: 0.3;
+}
+
 .tooltip {
   position: absolute;
   width: 135px;
