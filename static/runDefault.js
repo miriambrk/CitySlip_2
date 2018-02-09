@@ -161,13 +161,15 @@ function checkZipDef(code, zipData) {
             checkzip(zipCode)
         }
         else{
+
           census_county_popDef(zipData[2]);
           poi_pieDef(zipData[1], code);
           age_pieDef(zipData[0], code, data.LAT, data.LON, zipData[4][0]);
           build_gauge_chartDef(zipData);
           build_real_estate_graphDef(zipData[3]);
           build_meta_dataDef(zipData);
-          change_header(zip_data[4][0]['zip']);
+          build_pop_homes_correl(zipData);
+          //change_header(zip_data[4][0]['zip']);
         }
 
 })};
@@ -720,7 +722,7 @@ function census_county_popDef (data) {
           title: '2010 - 2016 Difference: ' + data.diff_2010_2016 + "%",
           titlefont: {
             family: 'Arial, sans-serif',
-            size: 18
+            size: 16
           }}
   };
   var d = [trace];
@@ -797,4 +799,175 @@ function build_meta_dataDef(zip_data) {
     var home_text = 'Population Growth: ' +  zip_data[2]['diff_2010_2016']+ "%";
     h6data.innerHTML = "<i class = 'fa fa-group'></i> "+home_text;
     app.appendChild(h6data);
+  }
+
+
+  //function correlation chart
+  function build_pop_homes_correl(zip_data) {
+    console.log("remove prev corr chart");
+    d3.select("#correlationchart").remove();
+    d3.select("#correlationtip").remove();
+
+    var pop = zip_data[2];
+    offset1 = (pop.POPULATION_2015 - pop.POPULATION_2014)/4;
+    offset2 = (pop.POPULATION_2016 - pop.POPULATION_2015)/4;
+
+    var RE = zip_data[3];
+
+    function format_period(period){
+      //sometimes the YYYY_MM changes to internal format so first need to get the period into the right format
+
+      var currentDate = new Date(period);
+      if ( isNaN( currentDate.getMonth() ) ) {
+        //not a date format; use original format
+        new_period = period.slice(5,7)+"-"+period.slice(0,4);
+        console.log("OKnew_period: "+ new_period);
+      }
+      else {
+        //date format; reformat into string format for display
+        var month = currentDate.getMonth(); //Be careful! January is 0 not 1
+        var year = currentDate.getFullYear();
+        var dateString = (month + 1) + "-" + year;
+        new_period = dateString;
+      }
+      return new_period;
+    }
+
+
+  console.log(RE);
+    var pop_home = [
+      {period: format_period(RE[0].period), pop: pop.POPULATION_2014, home_value: RE[0].home_value},
+      {period: format_period(RE[1].period), pop: pop.POPULATION_2014 + offset1, home_value: RE[1].home_value},
+      {period: format_period(RE[2].period), pop: pop.POPULATION_2014 + (offset1*2), home_value: RE[2].home_value},
+      {period: format_period(RE[3].period), pop: pop.POPULATION_2014 + (offset1*3), home_value: RE[3].home_value},
+      {period: format_period(RE[4].period), pop: pop.POPULATION_2015, home_value: RE[4].home_value},
+      {period: format_period(RE[5].period), pop: pop.POPULATION_2015 + offset2, home_value: RE[5].home_value},
+      {period: format_period(RE[6].period), pop: pop.POPULATION_2015 + (offset2*2), home_value: RE[6].home_value},
+      {period: format_period(RE[7].period), pop: pop.POPULATION_2015+ (offset2*3), home_value: RE[7].home_value},
+      {period: format_period(RE[8].period), pop: pop.POPULATION_2016, home_value: RE[8].home_value}
+    ];
+
+    var yMin;
+    var xMin;
+
+    function findyMin() {
+      yMin = d3.min(pop_home, function(data) {
+      return +data['home_value'] * 0.99;
+      });
+    }
+    function findxMin() {
+      xMin = d3.min(pop_home, function(data) {
+      return +data['pop'] * 0.999;
+      });
+    }
+    // Call findMin()
+    findyMin();
+    findxMin();
+
+
+  var svgWidth = 500;
+  var svgHeight = 500;
+  var margin = { top: 30, right: 40, bottom: 85, left: 80 };
+  var width = svgWidth - margin.left - margin.right;
+  var height = svgHeight - margin.top - margin.bottom;
+  // Create an SVG wrapper, append an SVG group that will hold our chart, and shift the latter by left and top margins.
+  var svg = d3.select(".correl")
+    .append("svg")
+    .attr("id","correlationchart")
+    .attr("width", svgWidth)
+    .attr("height", svgHeight)
+    .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+  var chart = svg.append("g");
+  //Append a div to the body to create tooltips, assign it a class
+  d3.select(".correl")
+    .append("div")
+    .attr("class", "tooltip2")
+    .attr("id","correlationtip")
+    .style("opacity", 0);
+
+
+    // Create scale functions
+    var yLinearScale = d3.scaleLinear()
+      .range([height, 0]);
+    var xLinearScale = d3.scaleLinear()
+      .range([0, width]);
+    // Create axis functions
+    var bottomAxis = d3.axisBottom(xLinearScale);
+    var leftAxis = d3.axisLeft(yLinearScale)
+      .tickFormat(d3.format('$,'));
+    // Scale the domain
+    xLinearScale.domain([xMin, d3.max(pop_home, function(data) {
+      return +data.pop;
+    })]);
+    yLinearScale.domain([yMin, d3.max(pop_home, function(data) {
+      return +data.home_value;
+    })]);
+
+    var toolTip = d3.tip()
+      .attr("class", "tooltip2")
+      .offset([80, -60])
+      .html(function(data) {
+        var period = data.period;
+        var pop = +data.pop;
+        var home_value = +data.home_value;
+
+        var formatAmount = d3.format('$,');
+        yString = formatAmount(home_value);
+
+        return (period + "<br> Population: " + pop + "<br> Home Value: " + yString);
+      });
+    chart.call(toolTip);
+
+    chart.selectAll("circle")
+      .data(pop_home)
+      .enter().append("circle")
+        .attr("cx", function(data, index) {
+          return xLinearScale(data.pop);
+        })
+        .attr("cy", function(data, index) {
+            return yLinearScale(data.home_value);
+        })
+        .attr("r", "8")
+        .attr("fill", "mediumvioletred")
+        .on("click", function(data) {
+          toolTip.show(data);
+        })
+        // onmouseout event
+        .on("mouseout", function(data, index) {
+          toolTip.hide(data);
+        });
+    chart.append("g")
+      .attr("transform", `translate(0, ${height})`)
+      .call(bottomAxis)
+      .selectAll("text")
+          .style("text-anchor", "end")
+          .attr("dx", "-.8em")
+          .attr("dy", ".35em")
+          .attr("transform", "rotate(-65)");
+    chart.append("g")
+      .call(leftAxis);
+    chart.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 0 - margin.left + 5)
+        .attr("x", 0 - (height / 2))
+        .attr("dy", "1em")
+        .attr("class", "axisText")
+        .text("Home Value");
+  // Append x-axis labels
+    chart.append("text")
+      .attr("transform", "translate(" + (width / 2) + " ," + (height + margin.top + 50) + ")")
+      .attr("class", "axisText")
+
+      .text("Population");
+
+
+      //add a title to the chart
+         chart.append("text")
+              .attr("x", (width / 2))
+              .attr("y", 0 - (margin.top / 2))
+              .attr("text-anchor", "middle")
+              .style("font-size", "18px")
+              .text("Correlation of Population and Home Sales - 2014-2016");
   }
