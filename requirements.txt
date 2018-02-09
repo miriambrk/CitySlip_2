@@ -1,0 +1,10 @@
+Flask==0.12.2
+Flask-Cors==3.0.2
+gunicorn==19.7.1
+Jinja2==2.9.6
+jsonschema==2.6.0
+lxml==3.7.3
+oauthlib==2.0.6
+pandas==0.20.1
+pandocfilters==1.4.1
+unicodecsv==0.14.1
