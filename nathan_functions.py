@@ -3,12 +3,10 @@ import requests as req
 import json
 import zipcodes
 import pandas as pd
-import matplotlib.pyplot as plt
 import numpy as np
 import http.client
 from datetime import datetime
 import time as time
-import csv
 
 
 # Use the google API to get a list of points of interest
