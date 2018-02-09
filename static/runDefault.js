@@ -162,6 +162,15 @@ function checkZipDef(code, zipData) {
         }
         else{
 
+          //fill out the zip code in the navbar
+          var app = document.querySelector("#zip_score");
+          var h3data = document.createElement("h3");
+          //city, state, zip on first line
+          h3data.innerHTML = zipData[4][0]['city'] + ", " + zipData[4][0]['state'] + " " +zipData[4][0]['zip'] +
+                        ",  SCORE: " + (zipData[0]['score'] * 100).toPrecision(2);
+          //h3data.style.textAlign = "center";
+          app.appendChild(h3data);
+
           census_county_popDef(zipData[2]);
           poi_pieDef(zipData[1], code);
           age_pieDef(zipData[0], code, data.LAT, data.LON, zipData[4][0]);

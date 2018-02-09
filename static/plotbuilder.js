@@ -33,6 +33,7 @@ function checkzip(code) {
             checkzip(zipCode)
         }
         else{
+
             Plotly.d3.json("/alldata/" + code, function(err, allData){
                 poi_pie(allData[1], code);
                 age_pie(allData[0], code, data.LAT, data.LON, allData[4][0]);
@@ -41,6 +42,20 @@ function checkzip(code) {
                 census_county_pop(allData[2]);
                 build_meta_data(allData);
                 build_pop_homes_correl(allData);
+
+                //display the zip code and score in the header bar
+                var app = document.querySelector("#zip_score");
+                var h3data = document.querySelector("#zip_score > h3");
+                if (h3data !== null) {
+                      app.removeChild(h3data);
+                }
+                var app = document.querySelector("#zip_score");
+                var h3data = document.createElement("h3");
+                //city, state, zip on first line
+                h3data.innerHTML = allData[4][0]['city'] + ", " + allData[4][0]['state'] + " " +allData[4][0]['zip'] +
+                              ",  SCORE: " + (allData[0]['score'] * 100).toPrecision(2);
+                //h3data.style.textAlign = "center";
+                app.appendChild(h3data);
             })
 
         }
@@ -620,7 +635,7 @@ function census_county_pop (data) {
           app.removeChild(h6data);
         }
       }
-      console.log(zip_data);
+      
 
       //put the metadata into h6 tags
       var h6data = document.createElement("h6");
