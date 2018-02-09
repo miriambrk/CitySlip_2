@@ -3,7 +3,6 @@ import requests as req
 import json
 import zipcodes
 import pandas as pd
-import matplotlib.pyplot as plt
 import numpy as np
 import http.client
 from datetime import datetime
