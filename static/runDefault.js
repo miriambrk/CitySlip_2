@@ -923,22 +923,25 @@ function build_meta_dataDef(zip_data) {
         var home_value = +data.home_value;
 
         var formatAmount = d3.format('$,');
+        var formatPop = d3.format(',');
+        var popString = formatPop(pop);
         yString = formatAmount(home_value);
 
-        return (period + "<br> Population: " + pop + "<br> Home Value: " + yString);
+        return (period + "<br> Population: " + popString + "<br> Home Value: " + yString);
       });
     chart.call(toolTip);
 
-    chart.selectAll("circle")
+    chart.selectAll("rect")
       .data(pop_home)
-      .enter().append("circle")
-        .attr("cx", function(data, index) {
+      .enter().append("rect")
+        .attr("x", function(data, index) {
           return xLinearScale(data.pop);
         })
-        .attr("cy", function(data, index) {
+        .attr("y", function(data, index) {
             return yLinearScale(data.home_value);
         })
-        .attr("r", "8")
+        .attr("width", "10")
+        .attr("height", "10")
         .attr("fill", "mediumvioletred")
         .on("click", function(data) {
           toolTip.show(data);
