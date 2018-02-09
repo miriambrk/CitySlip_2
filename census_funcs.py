@@ -7,7 +7,6 @@ import numpy as np
 import http.client
 from datetime import datetime
 import time as time
-import csv
 import os
 from miriam_functions import get_real_estate_data
 
