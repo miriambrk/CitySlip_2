@@ -8,7 +8,7 @@ import numpy as np
 import http.client
 from datetime import datetime
 import time as time
-import csv
+
 # Python SQL toolkit and Object Relational Mapper
 import sqlalchemy
 from sqlalchemy.ext.automap import automap_base
